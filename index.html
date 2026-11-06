@@ -1,0 +1,1101 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>Игротека лидера</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Onest:wght@400;500;600;700&family=Pangolin&display=swap">
+<style>
+/* Layout: синий хиро-баннер с огромным заголовком и стикерами, бегущая строка, ниже — бриф слева и карточки-стикеры справа (необрутализм: толстые обводки, жёсткие тени цвета типа игры) */
+:root{
+  --bg:#E9E8FF; --dot:#C8C5F4; --paper:#FFFFFF; --sunk:#F4F3FF; --ink:#0D0D14; --muted:#4A4864; --line:#0D0D14; --shadow:#0D0D14;
+  --hero:#3D35FF; --hero-ink:#FFFFFF; --danger:#C4122F;
+  --pink:#FF4FA3; --lime:#C8F53B; --orange:#FF8A1F; --violet:#A07BFF; --cyan:#2CC5FF; --yellow:#FFD83D;
+  --k1:var(--cyan); --k2:var(--orange); --k3:var(--violet); --k4:var(--lime); --k5:var(--pink);
+  --on-k:#0D0D14; --stk-line:#0D0D14; --bad:#FF6B5E;
+  --display:"Oswald", "Arial Narrow", Impact, sans-serif;
+  --body:"Onest", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --hand:"Pangolin", "Comic Sans MS", cursive;
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F0E17; --dot:#26243C; --paper:#1A1926; --sunk:#14131F; --ink:#F3F2FF; --muted:#ADABC8; --line:#F3F2FF; --shadow:#5B54FF;
+    --hero:#2B22E6; --hero-ink:#FFFFFF; --danger:#FF7A90;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F0E17; --dot:#26243C; --paper:#1A1926; --sunk:#14131F; --ink:#F3F2FF; --muted:#ADABC8; --line:#F3F2FF; --shadow:#5B54FF;
+  --hero:#2B22E6; --hero-ink:#FFFFFF; --danger:#FF7A90;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background-color:var(--bg);background-image:radial-gradient(var(--dot) 1.3px, transparent 1.5px);background-size:22px 22px;color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+
+/* ---------- hero ---------- */
+.hero{background:var(--hero);color:var(--hero-ink);border-bottom:2px solid var(--stk-line);overflow:hidden}
+.hero-in{position:relative;padding-block:34px 40px;display:flex;flex-direction:column;gap:14px}
+.kicker{font-family:var(--hand);font-size:clamp(19px,2.4vw,24px);color:var(--lime);margin:0;transform:rotate(-2deg);transform-origin:left}
+h1{font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:clamp(76px,12vw,156px);line-height:.9;letter-spacing:-.005em;margin:0;padding-bottom:.04em;display:flex;flex-direction:column}
+h1 .l2{color:var(--lime)}
+@supports (-webkit-text-stroke:2px #000){ h1 .l2{color:transparent;-webkit-text-stroke:2.5px var(--hero-ink)} }
+.lead{margin:12px 0 0;max-width:44ch;font-size:clamp(16px,1.7vw,19px);line-height:1.45;color:var(--hero-ink);opacity:.94;text-wrap:pretty}
+.stickers{position:absolute;right:0;top:0;bottom:0;width:38%;pointer-events:none}
+.stk{position:absolute}
+.stk svg{display:block;width:100%;height:auto}
+.stk-burst{width:200px;right:3%;top:22px;transform:rotate(10deg)}
+.stk-burst span{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:27px;line-height:.92;color:var(--on-k)}
+.stk-smile{width:96px;right:44%;top:44%;transform:rotate(-12deg)}
+.stk-bolt{width:64px;right:4%;bottom:26px;transform:rotate(14deg)}
+.stk-pill{right:16%;bottom:34px;transform:rotate(-5deg);background:var(--pink);color:var(--on-k);border:2px solid var(--stk-line);border-radius:999px;padding:6px 16px 7px;font-family:var(--display);font-weight:600;text-transform:uppercase;font-size:20px;box-shadow:4px 4px 0 var(--stk-line);white-space:nowrap}
+.f-lime{fill:var(--lime)} .f-yellow{fill:var(--yellow)} .f-orange{fill:var(--orange)} .f-ink{fill:var(--stk-line)} .s-stk{stroke:var(--stk-line)}
+@media (max-width:900px){
+  .stickers{position:static;width:auto;display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;margin-top:4px}
+  .stk{position:relative;inset:auto}
+  .stk-burst{width:92px}
+  .stk-burst span{font-size:13px}
+  .stk-smile{width:46px}
+  .stk-bolt{width:30px}
+  .stk-pill{font-size:14px;padding:4px 12px 5px;box-shadow:3px 3px 0 var(--stk-line)}
+}
+
+/* ---------- бегущая строка ---------- */
+.marquee{background:var(--stk-line);color:#FFFFFF;border-bottom:2px solid var(--stk-line);overflow:hidden;white-space:nowrap}
+.track{display:inline-flex;gap:28px;padding-block:9px;font-family:var(--display);font-weight:600;text-transform:uppercase;font-size:22px;letter-spacing:.04em;animation:run 32s linear infinite}
+.track b{font-weight:600}
+.track i{font-style:normal;color:var(--lime)}
+@keyframes run{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.track{animation:none}}
+
+/* ---------- раскладка ---------- */
+.grid{display:grid;grid-template-columns:370px minmax(0,1fr);gap:32px;align-items:start;padding-block:36px 72px}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr);gap:40px}}
+.panel{background:var(--paper);border:2px solid var(--line);border-radius:var(--r);box-shadow:6px 6px 0 var(--shadow);padding:20px;display:flex;flex-direction:column;gap:18px;position:sticky;top:calc(env(safe-area-inset-top, 0px) + 14px)}
+@media (max-width:900px){.panel{position:static}}
+.panel-title{font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:30px;line-height:1;margin:0;display:flex;align-items:center;gap:10px}
+.panel-title small{font-family:var(--hand);text-transform:none;font-weight:400;font-size:18px;color:var(--muted);transform:rotate(-3deg)}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+legend,.lbl{font-family:var(--display);font-weight:600;text-transform:uppercase;font-size:15px;letter-spacing:.06em;color:var(--ink);padding:0;margin-bottom:6px}
+.seg{display:flex;flex-wrap:wrap;gap:7px}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{border:2px solid var(--line);border-radius:999px;padding:5px 13px 6px;font-size:14px;font-weight:500;cursor:pointer;background:var(--paper);user-select:none;font-variant-numeric:tabular-nums;transition:transform .1s, box-shadow .1s}
+.seg label:hover{transform:translate(-1px,-1px);box-shadow:2px 2px 0 var(--shadow)}
+.seg input:checked + label{background:var(--ink);color:var(--paper)}
+.seg input:focus-visible + label{outline:3px solid var(--hero);outline-offset:2px}
+.kinds{display:flex;flex-direction:column;gap:7px}
+.krow{display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;gap:10px;padding:5px 6px 5px 10px;border:2px solid var(--line);border-radius:12px;background:var(--paper)}
+.krow.off{background:var(--sunk)}
+.krow.off .kname{color:var(--muted)}
+.krow.off .kdot{opacity:.35}
+.kdot{width:20px;height:20px;border-radius:6px;background:var(--kc);border:2px solid var(--stk-line);transform:rotate(-10deg)}
+.kname{font-size:15px;font-weight:600;min-width:0}
+.step{display:flex;align-items:center;gap:4px}
+.step button{width:32px;height:32px;border:2px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font-family:var(--display);font-size:20px;font-weight:600;line-height:1;padding:0}
+.step button:hover:not(:disabled){background:var(--kc);color:var(--on-k)}
+.step output{min-width:26px;text-align:center;font-family:var(--display);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
+.field{display:flex;flex-direction:column;gap:6px}
+.field input{font:inherit;font-size:15px;color:var(--ink);background:var(--sunk);border:2px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
+.field input::placeholder{color:var(--muted)}
+.field input:focus-visible{outline:none;box-shadow:4px 4px 0 var(--hero)}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border-radius:12px}
+button:focus-visible{outline:3px solid var(--hero);outline-offset:2px}
+button:disabled{opacity:.5;cursor:default}
+.primary{flex:1;background:var(--pink);color:var(--on-k);border:2px solid var(--stk-line);border-radius:14px;padding:11px 18px 12px;font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:23px;letter-spacing:.03em;box-shadow:4px 4px 0 var(--shadow);transition:transform .08s, box-shadow .08s}
+.primary::after{content:" →"}
+.primary:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--shadow)}
+.primary:active:not(:disabled){transform:translate(3px,3px);box-shadow:1px 1px 0 var(--shadow)}
+.primary:disabled{box-shadow:none}
+.ghost{background:var(--paper);color:var(--ink);border:2px solid var(--line);padding:8px 14px;font-size:14px;font-weight:600;transition:transform .08s, box-shadow .08s}
+.ghost:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--shadow)}
+.status{font-size:14px;font-weight:500;color:var(--muted);margin:0;min-height:1.5em}
+.status.err{color:var(--danger)}
+
+/* ---------- результаты ---------- */
+.res-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px;margin-bottom:26px}
+.res-head h2{font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:clamp(26px,3.2vw,36px);line-height:1.05;margin:0 0 8px;text-wrap:balance;font-variant-numeric:tabular-nums}
+.res-head p{margin:0;color:var(--muted);font-size:15px;font-weight:500}
+.badge{display:inline-block;font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.05em;text-transform:uppercase;background:var(--yellow);color:var(--on-k);border:2px solid var(--stk-line);border-radius:6px;padding:0 8px 1px;margin-left:10px;transform:rotate(-4deg);vertical-align:1px}
+.cards{display:flex;flex-direction:column;gap:34px}
+.card{background:var(--paper);border:2px solid var(--line);border-radius:20px;padding:36px 24px 20px;position:relative;min-width:0;box-shadow:8px 8px 0 var(--kc)}
+.tape{position:absolute;top:-17px;left:18px;transform:rotate(-3deg);background:var(--kc);color:var(--on-k);border:2px solid var(--stk-line);border-radius:999px;font-family:var(--display);font-weight:600;text-transform:uppercase;font-size:16px;letter-spacing:.05em;padding:2px 14px 4px}
+.k1{--kc:var(--k1)} .k2{--kc:var(--k2)} .k3{--kc:var(--k3)} .k4{--kc:var(--k4)} .k5{--kc:var(--k5)}
+.card h3{font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:clamp(28px,3.6vw,40px);line-height:1;margin:0 0 16px;text-wrap:balance}
+.meta{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 16px;margin:0 0 6px;font-size:15px}
+.meta dt{font-family:var(--display);font-weight:600;text-transform:uppercase;font-size:13px;letter-spacing:.06em;color:var(--muted);padding-top:2px}
+.meta dd{margin:0;min-width:0;font-weight:500}
+.card h4{font-family:var(--display);font-weight:600;text-transform:uppercase;font-size:16px;letter-spacing:.05em;color:var(--ink);margin:22px 0 10px;display:flex;align-items:center;gap:9px}
+.card h4::before{content:"";width:11px;height:11px;background:var(--kc);border:2px solid var(--stk-line);transform:rotate(45deg);flex:none}
+.card ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;counter-reset:r}
+.card ol li{counter-increment:r;position:relative;padding-left:38px;min-height:26px}
+.card ol li::before{content:counter(r);position:absolute;left:0;top:-1px;width:27px;height:27px;border:2px solid var(--stk-line);border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:14px;background:var(--kc);color:var(--on-k)}
+.card ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
+.card p{margin:0}
+.bridge{margin:0;background:var(--sunk);border:2px solid var(--line);border-radius:18px 18px 18px 4px;padding:13px 16px;font-weight:500}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;padding-top:16px;border-top:2px dashed var(--line)}
+.loading .ph{font-family:var(--hand);font-size:24px;color:var(--muted)}
+.ph::after{content:"";display:inline-block;width:1.2em;text-align:left;animation:dots 1.2s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+.detail{margin-top:18px;background:var(--sunk);border:2px dashed var(--line);border-radius:16px;padding:16px 18px;min-width:0}
+.detail h4:first-child{margin-top:0}
+.script{white-space:pre-line;border-left:4px solid var(--kc);padding-left:14px;margin:0}
+.tl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 14px;margin:0}
+.tl dt{font-family:var(--display);font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted);font-size:15px}
+.tl dd{margin:0;min-width:0}
+.copybox{width:100%;min-height:160px;font:inherit;font-size:13px;margin:0 0 24px;background:var(--paper);color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:12px}
+@media (prefers-reduced-motion:no-preference){.card.fresh{animation:in .4s cubic-bezier(.2,.9,.3,1.3)}}
+@keyframes in{from{transform:translateY(10px) rotate(-.6deg)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){.ph::after{animation:none;content:"..."}}
+
+/* ---------- вкладки ---------- */
+.tabs{display:flex;flex-wrap:wrap;gap:12px;padding-block:28px 0}
+.tab{font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:clamp(22px,3vw,30px);letter-spacing:.03em;color:var(--ink);text-decoration:none;background:var(--paper);border:2px solid var(--line);border-radius:999px;padding:4px 22px 6px;transition:transform .08s, box-shadow .08s}
+.tab:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--shadow)}
+.tab[aria-current="page"]{background:var(--ink);color:var(--paper);box-shadow:4px 4px 0 var(--pink)}
+.tab:focus-visible{outline:3px solid var(--hero);outline-offset:3px}
+.grid{padding-block:28px 72px}
+
+/* ---------- викторина ---------- */
+.field textarea{font:inherit;font-size:14px;color:var(--ink);background:var(--sunk);border:2px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;resize:vertical;min-height:150px}
+.field textarea:focus-visible{outline:none;box-shadow:4px 4px 0 var(--hero)}
+.lv1{--kc:var(--lime)} .lv2{--kc:var(--cyan)} .lv3{--kc:var(--violet)} .lv4{--kc:var(--pink)}
+.qcard h3{font-family:var(--body);text-transform:none;font-weight:600;font-size:clamp(19px,2.2vw,22px);line-height:1.3;margin:0 0 16px}
+.card ol.opts{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:560px){.card ol.opts{grid-template-columns:minmax(0,1fr)}}
+.card ol.opts li::before{content:none;display:none}
+.card ol.opts li{min-height:0;display:grid;grid-template-columns:30px minmax(0,1fr);align-items:center;gap:10px;border:2px solid var(--line);border-radius:12px;padding:8px 12px 8px 8px;background:var(--paper);min-width:0}
+.opts .let{width:30px;height:30px;border:2px solid var(--stk-line);border-radius:8px;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:16px;background:var(--sunk);color:var(--ink)}
+.answers .opts li.ok{background:var(--kc);color:var(--on-k);border-color:var(--stk-line)}
+.answers .opts li.ok .let{background:var(--paper);color:var(--ink)}
+.answers .opts li.ok::after{content:"✓";grid-column:3;font-weight:700}
+.answers .opts li.ok{grid-template-columns:30px minmax(0,1fr) auto}
+.qans{display:none}
+.answers .qans{display:block}
+.ref{margin-top:10px;font-size:13px;color:var(--muted);font-weight:500}
+.fixrow{display:flex;flex-wrap:wrap;gap:8px;width:100%}
+.fixrow input{flex:1;min-width:180px;font:inherit;font-size:14px;color:var(--ink);background:var(--sunk);border:2px solid var(--line);border-radius:12px;padding:8px 12px}
+.fixrow input:focus-visible{outline:none;box-shadow:3px 3px 0 var(--hero)}
+.res-tools{display:flex;flex-wrap:wrap;gap:8px}
+
+/* ---------- показ на экране ---------- */
+.show{position:fixed;inset:0;z-index:60;background:var(--hero);color:#FFFFFF;display:flex;flex-direction:column;gap:clamp(16px,3vh,32px);overflow:auto;
+  padding:max(20px, env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) max(20px, env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px))}
+.show-top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.show-top .tape{position:static;transform:rotate(-3deg);font-size:clamp(16px,2vw,22px)}
+.show-count{font-family:var(--display);font-weight:600;font-size:clamp(18px,2.2vw,26px);letter-spacing:.04em;margin-right:auto}
+.show .ghost{background:transparent;color:#FFFFFF;border-color:#FFFFFF}
+.show .ghost:hover:not(:disabled){box-shadow:3px 3px 0 var(--stk-line)}
+.show-q{margin:0;font-weight:700;font-size:clamp(26px,4.4vw,56px);line-height:1.15;max-width:28ch;text-wrap:balance}
+.show-opts{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(10px,1.6vw,18px)}
+@media (max-width:700px){.show-opts{grid-template-columns:minmax(0,1fr)}}
+.show-opts li{min-width:0;display:flex}
+.opt{flex:1;display:flex;align-items:center;gap:14px;text-align:left;background:#FFFFFF;color:var(--on-k);border:2px solid var(--stk-line);border-radius:18px;padding:clamp(10px,1.6vw,18px) clamp(14px,2vw,22px);font-weight:600;font-size:clamp(18px,2.4vw,30px);line-height:1.2;box-shadow:5px 5px 0 var(--stk-line);min-width:0;transition:transform .08s, box-shadow .08s}
+.opt:hover:not(:disabled){transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--stk-line)}
+.opt:active:not(:disabled){transform:translate(3px,3px);box-shadow:2px 2px 0 var(--stk-line)}
+.opt:disabled{cursor:default;opacity:1}
+.opt .let{flex:none;font-family:var(--display);font-weight:700;width:1.6em;height:1.6em;border:2px solid var(--stk-line);border-radius:10px;display:grid;place-items:center;background:var(--yellow)}
+.opt .mark{margin-left:auto;font-family:var(--display);font-weight:700;font-size:1.1em}
+.opt.ok{background:var(--lime)}
+.opt.bad{background:var(--bad)}
+.opt.dim{opacity:.4}
+@media (prefers-reduced-motion:no-preference){
+  .opt.ok.picked{animation:pop .35s cubic-bezier(.2,.9,.3,1.5)}
+  .opt.bad{animation:shake .35s}
+}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.show-score{font-family:var(--display);font-weight:700;font-size:clamp(18px,2.2vw,26px);background:var(--yellow);color:var(--on-k);border:2px solid var(--stk-line);border-radius:999px;padding:2px 14px 4px;box-shadow:3px 3px 0 var(--stk-line);font-variant-numeric:tabular-nums}
+.show-x2{font-family:var(--display);font-weight:700;font-size:clamp(14px,1.6vw,18px);background:var(--pink);color:var(--on-k);border:2px solid var(--stk-line);border-radius:6px;padding:0 8px 2px;transform:rotate(4deg)}
+.show-verdict{margin:0;font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:clamp(24px,3.4vw,42px);line-height:1}
+.show-verdict.good{color:var(--lime)}
+.show-verdict.miss{color:#FFB3AD}
+.show-main{display:flex;flex-direction:column;gap:clamp(14px,2.6vh,26px);flex:1}
+.show-end{display:flex;flex-direction:column;align-items:flex-start;gap:clamp(12px,2.4vh,22px);flex:1}
+.show-end-k{margin:0;font-family:var(--hand);font-size:clamp(22px,2.6vw,32px);color:var(--lime);transform:rotate(-3deg)}
+.show-end-score{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(96px,18vw,220px);line-height:.85;font-variant-numeric:tabular-nums}
+.show-end-score small{font-size:.38em;opacity:.8}
+.show-end-msg{margin:0;font-weight:700;font-size:clamp(22px,3vw,38px);max-width:24ch;text-wrap:balance}
+.show-end-dots{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.show-end-dots li{width:clamp(38px,4.4vw,52px);height:clamp(38px,4.4vw,52px);border:2px solid var(--stk-line);border-radius:12px;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:clamp(16px,1.8vw,22px);color:var(--on-k);background:#FFFFFF;opacity:.55}
+.show-end-dots li.ok{background:var(--lime);opacity:1}
+.show-end-dots li.bad{background:var(--bad);opacity:1}
+.show-comment{margin:0;font-family:var(--hand);font-size:clamp(20px,2.4vw,30px);color:var(--lime);max-width:46ch}
+.show-ref{margin:0;font-size:clamp(14px,1.4vw,18px);opacity:.85}
+.show-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:auto}
+.show-nav .primary{flex:0 1 auto;min-width:220px}
+</style>
+
+<header class="hero">
+  <div class="wrap hero-in">
+    <p class="kicker">для подросткового служения</p>
+    <h1><span class="l1">Игротека</span><span class="l2">лидера</span></h1>
+    <p class="lead">Игры и библейские викторины под твою встречу: ледоколы, командный драйв, блеф, игры-мостики к проповеди и квиз на 10 вопросов с босс-уровнем. Минимум реквизита, без кринжа.</p>
+    <div class="stickers" aria-hidden="true">
+      <div class="stk stk-burst"><svg viewBox="0 0 200 200"><polygon id="burstPoly" class="f-lime s-stk" stroke-width="4" stroke-linejoin="round"/></svg><span>Без<br>кринжа</span></div>
+      <div class="stk stk-smile"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" class="f-yellow s-stk" stroke-width="4"/><ellipse cx="36" cy="40" rx="5" ry="8" class="f-ink"/><ellipse cx="64" cy="40" rx="5" ry="8" class="f-ink"/><path d="M27 58 Q50 84 73 58" fill="none" class="s-stk" stroke-width="5" stroke-linecap="round"/></svg></div>
+      <div class="stk stk-pill">до 8 игр за раз</div>
+      <div class="stk stk-bolt"><svg viewBox="0 0 100 140"><polygon points="60,4 12,80 46,80 34,136 90,54 54,54 68,4" class="f-orange s-stk" stroke-width="4" stroke-linejoin="round"/></svg></div>
+    </div>
+  </div>
+</header>
+<div class="marquee" aria-hidden="true"><div class="track" id="track"></div></div>
+<nav class="wrap tabs" aria-label="Разделы">
+  <a class="tab" id="tab-games" href="#games">Игры</a>
+  <a class="tab" id="tab-quiz" href="#quiz">Викторина</a>
+</nav>
+
+<main class="wrap grid">
+  <form id="brief" class="panel" autocomplete="off">
+    <h2 class="panel-title">Бриф встречи <small>пара кликов</small></h2>
+    <fieldset>
+      <legend>Возраст ребят</legend>
+      <div class="seg" data-name="age"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Сколько человек</legend>
+      <div class="seg" data-name="size"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Сколько есть времени</legend>
+      <div class="seg" data-name="time"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Какие игры нужны</legend>
+      <div class="kinds" id="kinds"></div>
+      <p class="hint" id="kindsHint"></p>
+    </fieldset>
+    <fieldset>
+      <legend>Насколько необычно</legend>
+      <div class="seg" data-name="novelty"></div>
+      <p class="hint" id="noveltyHint"></p>
+    </fieldset>
+    <div class="field">
+      <label class="lbl" for="theme">Тема проповеди</label>
+      <input id="theme" placeholder="Например: доверие, зависть, прощение">
+      <p class="hint">Пусто — сделаю игры на сплочение и драйв.</p>
+    </div>
+    <div class="field">
+      <label class="lbl" for="room">Помещение</label>
+      <input id="room" placeholder="Зал со стульями, есть проектор">
+    </div>
+    <div class="field">
+      <label class="lbl" for="wish">Пожелания</label>
+      <input id="wish" placeholder="Без беготни, ребята видят друг друга впервые">
+    </div>
+    <div class="btns">
+      <button type="submit" class="primary" id="go">Подобрать</button>
+      <button type="button" class="ghost" id="stop" hidden>Стоп</button>
+    </div>
+    <p class="status" id="status" aria-live="polite"></p>
+    <p class="hint" id="memory"></p>
+  </form>
+
+  <section id="results" aria-labelledby="resTitle">
+    <div class="res-head">
+      <div>
+        <h2 id="resTitle"></h2>
+        <p id="resMeta"></p>
+      </div>
+      <button type="button" class="ghost" id="copyAll">Скопировать всё текстом</button>
+    </div>
+    <textarea id="copyBox" class="copybox" readonly hidden aria-label="Текст для копирования"></textarea>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <form id="quizForm" class="panel" autocomplete="off" hidden>
+    <h2 class="panel-title">Викторина <small>10 вопросов</small></h2>
+    <fieldset>
+      <legend>Из чего собрать</legend>
+      <div class="seg" data-name="qsource"></div>
+    </fieldset>
+    <div class="field" id="qTopicField">
+      <label class="lbl" for="qtopic" id="qTopicLbl">Тема</label>
+      <input id="qtopic" placeholder="Например: прощение, дружба, страх">
+    </div>
+    <div class="field" id="qNotesField" hidden>
+      <label class="lbl" for="qnotes">Конспект проповеди</label>
+      <textarea id="qnotes" placeholder="Вставь текст проповеди или урока — вопросы будут только по нему"></textarea>
+      <p class="hint" id="qNotesHint"></p>
+    </div>
+    <fieldset>
+      <legend>Возраст ребят</legend>
+      <div class="seg" data-name="qage"></div>
+    </fieldset>
+    <div class="field">
+      <label class="lbl" for="qwish">Пожелания</label>
+      <input id="qwish" placeholder="Побольше юмора, без вопросов на даты">
+    </div>
+    <div class="btns">
+      <button type="submit" class="primary" id="qgo">Собрать викторину</button>
+      <button type="button" class="ghost" id="qstop" hidden>Стоп</button>
+    </div>
+    <p class="status" id="qstatus" aria-live="polite"></p>
+  </form>
+
+  <section id="quizResults" aria-labelledby="qTitle" hidden>
+    <div class="res-head">
+      <div>
+        <h2 id="qTitle"></h2>
+        <p id="qMeta"></p>
+      </div>
+      <div class="res-tools">
+        <button type="button" class="ghost" id="qShow">Играть на экране</button>
+        <button type="button" class="ghost" id="qToggle">Скрыть ответы</button>
+        <button type="button" class="ghost" id="qCopy">Скопировать текстом</button>
+      </div>
+    </div>
+    <textarea id="qCopyBox" class="copybox" readonly hidden aria-label="Текст викторины для копирования"></textarea>
+    <div class="cards" id="qcards"></div>
+  </section>
+</main>
+
+<div class="show" id="show" role="dialog" aria-modal="true" aria-labelledby="showQ" hidden>
+  <div class="show-top">
+    <span class="tape" id="showLevel"></span>
+    <span class="show-x2" id="showX2" hidden>×2 очка</span>
+    <span class="show-count" id="showCount"></span>
+    <span class="show-score" id="showScore" aria-live="polite"></span>
+    <button type="button" class="ghost" id="showFs">На весь экран</button>
+    <button type="button" class="ghost" id="showClose">Закрыть</button>
+  </div>
+  <div class="show-main" id="showMain">
+    <p class="show-q" id="showQ"></p>
+    <ol class="show-opts" id="showOpts"></ol>
+    <p class="show-verdict" id="showVerdict" aria-live="polite" hidden></p>
+    <p class="show-comment" id="showComment" hidden></p>
+    <p class="show-ref" id="showRef" hidden></p>
+    <div class="show-nav">
+      <button type="button" class="ghost" id="showPrev">← Назад</button>
+      <button type="button" class="primary" id="showReveal">Показать ответ</button>
+      <button type="button" class="ghost" id="showNext">Дальше →</button>
+    </div>
+  </div>
+  <div class="show-end" id="showEnd" hidden>
+    <p class="show-end-k">итоги викторины</p>
+    <p class="show-end-score" id="endScore"></p>
+    <p class="show-end-msg" id="endMsg"></p>
+    <ol class="show-end-dots" id="endDots" aria-label="Ответы по вопросам"></ol>
+    <div class="show-nav">
+      <button type="button" class="primary" id="endAgain">Сыграть ещё раз</button>
+      <button type="button" class="ghost" id="endReview">Пройтись по ответам</button>
+      <button type="button" class="ghost" id="endClose">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // звезда-стикер: 14 лучей
+  const pts = [], n = 14;
+  for(let i=0;i<n*2;i++){ const a = Math.PI*i/n - Math.PI/2, r = i%2 ? 74 : 96; pts.push((100+r*Math.cos(a)).toFixed(1)+","+(100+r*Math.sin(a)).toFixed(1)); }
+  document.getElementById("burstPoly").setAttribute("points", pts.join(" "));
+  // бегущая строка: две одинаковые половины для бесшовной прокрутки
+  const words = ["Ледоколы","Командный драйв","Блеф и интуиция","Со смартфонами","Игры-метафоры","Викторины","Босс-вопрос","Без кринжа"];
+  const half = words.map(w=>"<b>"+w+"</b><i>✦</i>").join("");
+  document.getElementById("track").innerHTML = half + half + half + half;
+})();
+</script>
+
+<script src="config.js"></script>
+<script src="prompts.js"></script>
+<script>
+(function(){
+// Адрес сервера-посредника (функция Yandex Cloud с GigaChat) для версии на GitHub
+// задаётся в site/config.js — см. ИНСТРУКЦИЯ.md
+const API_URL = window.IGROTEKA_API_URL || "";
+
+const C = window.IgrotekaCore;
+const {OPTS, DEFAULTS, MAX_TOTAL, KINDS, plural, slotsFrom} = C;
+const NOVELTY_HINT = {
+  "Классика": "Проверенные лагерные игры, но не самые затёртые.",
+  "Свежий поворот": "Знакомые механики с новым поворотом: смешанные, с ролями, с неожиданным финалом.",
+  "Совсем новое": "ИИ придумывает свою механику и проверяет в голове, что она играбельна."
+};
+
+const EXAMPLE = {
+  example:true,
+  brief:{age:"14–16 лет", size:"15–30 человек", time:"10–15 минут на игру", theme:"Доверие", room:"Зал со стульями", wish:"", counts:[1,1,1,1,1]},
+  slots:[0,1,2,3,4],
+  games:[
+    {title:"Пересядь, если…", time:"3–5 минут | все вместе | сидя в кругу", props:"Стулья по кругу — на один меньше, чем людей",
+     rules:["Все садятся в круг, ведущий стоит в центре без стула.","Ведущий говорит «Пересядь, если…» и называет что-то про себя: «…если ты сегодня не выспался», «…если у тебя есть младший брат».","Все, кому это подходит, встают и ищут свободный стул. Садиться на соседний нельзя.","Кто остался без стула — новый ведущий. Через пару кругов добавь вопрос поглубже: «…если тебя когда-то подводил друг»."],
+     secret:"Каждый рассказывает о себе одним действием — встать или остаться. Выступать перед всеми не надо, а суета за стулья снимает неловкость смехом.",
+     bridge:"Заметили, сколько человек встало на «тебя подводил друг»? Почти все. Сегодня поговорим, кому вообще можно доверять и почему Богу — можно."},
+    {title:"Переверни стакан", time:"8–10 минут | 2–4 команды по 5–8 человек | у столов", props:"Пластиковые стаканчики по одному на человека, 2 стола или лавки",
+     rules:["Команды встают в колонну у своего стола. У каждого перед собой стакан дном вверх, донышко чуть выступает за край стола.","Первый щелчком пальцев снизу подбрасывает стакан, чтобы тот перевернулся и встал дном вниз.","Получилось — переворачивает следующий. Не получилось — пробует, пока не выйдет.","Выигрывает команда, у которой первой перевернулись все стаканы. 3 раунда, в последнем — только левой рукой."],
+     secret:"С первого раза не выходит почти ни у кого, и это смешно, а не стыдно: команда болеет за своего, а не смеётся над ним.",
+     bridge:"Пока кто-то в пятый раз пытался перевернуть стакан, команда ждала и подсказывала, никто его не выгнал. Вот так выглядят люди, которым можно доверять."},
+    {title:"Шпион", time:"10–15 минут | группы по 5–8 человек | сидя", props:"Листки бумаги и ручка: на всех одно место, на одном — «Шпион»",
+     rules:["Раздай сложенные листки: у всех написано одно место (например, «школьная столовая»), у одного — «Шпион». Свой листок никто не показывает.","По кругу каждый задаёт кому-то вопрос про место: «Что ты там обычно делаешь?» Отвечать надо так, чтобы свои поняли, а шпион не догадался.","Шпион места не знает и выкручивается по чужим ответам.","В любой момент можно объявить голосование. Если шпиона вычислили, он ещё выигрывает, если угадает место."],
+     secret:"Блефовать здесь безопасно: обманывать — это правило игры. Тихие ребята часто оказываются лучшими детективами.",
+     bridge:"Как вы понимали, кто шпион? По мелочам: голос дрогнул, ответ слишком общий. Мы всё время проверяем, кому верить. Сегодня — о Том, Кто ни разу не обманул."},
+    {title:"Фото-охота", time:"5–8 минут | команды по 3–4 человека | по всему зданию", props:"Один смартфон на команду, список кадров на экране или листке",
+     rules:["Покажи список из 8 кадров: «вся команда в кадре и никто не касается пола», «что-то старше вас всех», «самое смешное лицо лидера», «то, на что можно опереться».","У команд 4 минуты, снимать можно только внутри здания.","Каждый кадр — 1 очко, самый креативный — 2.","Покажите лучшие фото на проекторе или прямо с телефонов."],
+     secret:"Телефон в руках — привычная зона комфорта. Смешно получается за кадром, а не на глазах у всех.",
+     bridge:"Последний кадр был «то, на что можно опереться». Что вы сняли — стену, перила, друга? А на что ты опираешься, когда всё плохо?"},
+    {title:"Минное поле", time:"10–15 минут | пары, остальные — «шум» | свободная часть зала", props:"Стаканчики и листы бумаги — «мины», шарф или повязка на глаза",
+     rules:["Разложи по полу «мины» из стаканчиков и бумаги.","Один из пары завязывает глаза, второй стоит за краем поля и ведёт его только голосом: «шаг влево», «стоп».","Задел мину — обратно на старт. Засекай время каждой пары.","Во втором раунде остальные специально выкрикивают неправильные подсказки. Ведомый должен слышать только своего."],
+     secret:"Повязка на глазах выглядит смело, а не глупо, и всё внимание на паре, а не на одном человеке.",
+     bridge:"Во втором раунде мешали не мины, а чужие голоса. Вокруг тебя тоже много голосов. Иисус сказал: «Овцы Мои слушаются голоса Моего» (Ин 10:27). Как научиться отличать Его голос?"}
+  ]
+};
+
+const $ = id => document.getElementById(id);
+const store = {
+  get(){ try{ return JSON.parse(localStorage.getItem("igroteka:v1")||"null"); }catch(e){ return null; } },
+  set(v){ try{ localStorage.setItem("igroteka:v1", JSON.stringify(v)); }catch(e){} }
+};
+
+let state = store.get() || EXAMPLE;
+if(state && Array.isArray(state.games) && !Array.isArray(state.slots) && state.games.length===5) state.slots = [0,1,2,3,4];
+if(!state || !Array.isArray(state.games) || !Array.isArray(state.slots) || !state.games.length || state.games.length!==state.slots.length) state = EXAMPLE;
+let counts = [1,1,1,1,1];
+let sample = null, mode = null, busy = false, ctl = null, available = null;
+const engine = () => mode === "claude" ? "Claude" : "GigaChat";
+
+// ---------- память выданных игр ----------
+const HKEY = "igroteka:hist";
+let hist = (()=>{ try{ const h = JSON.parse(localStorage.getItem(HKEY)||"[]"); return Array.isArray(h) ? h.map(String) : []; }catch(e){ return []; } })();
+function addHistory(titles){
+  titles.forEach(t=>{ t = String(t||"").trim(); if(t && !hist.includes(t)) hist.push(t); });
+  hist = hist.slice(-60);
+  try{ localStorage.setItem(HKEY, JSON.stringify(hist)); }catch(e){}
+  renderMemory();
+}
+function renderMemory(){
+  const m = $("memory"); m.textContent = "";
+  if(!hist.length) return;
+  m.append("Уже выдано игр: " + hist.length + ". Повторять их не будем. ");
+  const b = document.createElement("button"); b.type="button"; b.className="ghost"; b.id="forget";
+  b.textContent = "Забыть"; b.style.padding = "2px 8px"; b.style.fontSize = "13px";
+  m.append(b);
+}
+
+// ---------- форма ----------
+function el(tag, cls, text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
+const SEG_OPTS = {...OPTS, qsource:C.QUIZ_SOURCES, qage:OPTS.age};
+function buildSeg(){
+  document.querySelectorAll(".seg").forEach(box=>{
+    const name = box.dataset.name;
+    (SEG_OPTS[name]||[]).forEach((v,i)=>{
+      const id = name+"-"+i;
+      const inp = document.createElement("input");
+      inp.type="radio"; inp.name=name; inp.id=id; inp.value=v;
+      const lab = document.createElement("label"); lab.htmlFor=id; lab.textContent=v;
+      box.append(inp, lab);
+    });
+  });
+}
+function buildKinds(){
+  const box = $("kinds");
+  KINDS.forEach((k,i)=>{
+    const row = el("div","krow "+k.cls); row.id = "krow-"+i;
+    const name = el("span","kname",k.label); name.id = "kname-"+i;
+    const step = el("div","step");
+    const minus = el("button",null,"−"); minus.type="button"; minus.dataset.k=i; minus.dataset.d="-1"; minus.id="kminus-"+i; minus.setAttribute("aria-label","Меньше: "+k.label);
+    const out = el("output",null,"1"); out.id = "kcount-"+i; out.setAttribute("aria-labelledby","kname-"+i);
+    const plus = el("button",null,"+"); plus.type="button"; plus.dataset.k=i; plus.dataset.d="1"; plus.id="kplus-"+i; plus.setAttribute("aria-label","Больше: "+k.label);
+    step.append(minus,out,plus);
+    row.append(el("span","kdot"), name, step);
+    box.append(row);
+  });
+  box.addEventListener("click", e=>{
+    const b = e.target.closest("button[data-k]"); if(!b) return;
+    const k = Number(b.dataset.k), d = Number(b.dataset.d);
+    const total = counts.reduce((a,x)=>a+x,0);
+    if(d>0 && total>=MAX_TOTAL) return;
+    counts[k] = Math.max(0, counts[k]+d);
+    renderKinds();
+  });
+}
+function renderKinds(){
+  const total = counts.reduce((a,x)=>a+x,0);
+  counts.forEach((n,i)=>{
+    $("kcount-"+i).textContent = n;
+    $("krow-"+i).classList.toggle("off", n===0);
+    $("kminus-"+i).disabled = n===0;
+    $("kplus-"+i).disabled = total>=MAX_TOTAL;
+  });
+  $("kindsHint").textContent = total ? "Всего " + total + " " + plural(total,"игра","игры","игр") + " (максимум " + MAX_TOTAL + ")." : "Добавь хотя бы одну игру.";
+  $("go").textContent = total ? "Подобрать " + total + " " + plural(total,"игру","игры","игр") : "Выбери игры";
+  syncButtons();
+}
+function showNoveltyHint(){
+  const v = (document.querySelector('input[name="novelty"]:checked')||{}).value || DEFAULTS.novelty;
+  $("noveltyHint").textContent = NOVELTY_HINT[v] || "";
+}
+function fillForm(b){
+  ["age","size","time","novelty"].forEach(n=>{
+    const all = [...document.getElementsByName(n)];
+    const x = all.find(x=>x.value===b[n]) || all.find(x=>x.value===DEFAULTS[n]) || all[0];
+    x.checked = true;
+  });
+  showNoveltyHint();
+  $("theme").value = b.theme||""; $("room").value = b.room||""; $("wish").value = b.wish||"";
+  counts = (Array.isArray(b.counts) && b.counts.length===5) ? b.counts.map(x=>Math.max(0,Math.min(MAX_TOTAL,Number(x)||0))) : [1,1,1,1,1];
+  renderKinds();
+}
+function readForm(){
+  const g = n => (document.querySelector('input[name="'+n+'"]:checked')||{}).value || DEFAULTS[n] || OPTS[n][0];
+  return {age:g("age"), size:g("size"), time:g("time"), novelty:g("novelty"), counts:counts.slice(), theme:$("theme").value.trim(), room:$("room").value.trim(), wish:$("wish").value.trim()};
+}
+
+// ---------- карточки ----------
+function renderHead(){
+  const b = state.brief, n = state.games.length;
+  $("resTitle").textContent = n + " " + plural(n,"игра","игры","игр") + ": " + b.age + " | " + b.size + " | " + b.time.replace(" на игру","");
+  const meta = $("resMeta"); meta.textContent = "Тема: " + (b.theme || "сплочение и драйв");
+  if(b.room) meta.textContent += " · " + b.room;
+  if(state.example){ meta.append(el("span","badge","Пример")); }
+}
+function renderCard(i, fresh){
+  const g = state.games[i], k = KINDS[state.slots[i]];
+  const card = el("article","card "+k.cls+(fresh?" fresh":""));
+  card.id = "card-"+i;
+  card.append(el("span","tape", (i+1)+" · "+k.label));
+  if(g === "loading"){
+    card.classList.add("loading");
+    card.append(el("p","ph","Придумываю игру"));
+  } else if(!g){
+    card.append(el("p",null,"Эта игра не пришла."));
+  } else {
+    card.append(el("h3",null,g.title));
+    const dl = el("dl","meta");
+    dl.append(el("dt",null,"Время и формат"), el("dd",null,g.time), el("dt",null,"Реквизит"), el("dd",null,g.props));
+    card.append(dl);
+    card.append(el("h4",null,"Правила"));
+    const ol = el("ol"); g.rules.forEach(r=>ol.append(el("li",null,r))); card.append(ol);
+    card.append(el("h4",null,"Почему зайдёт"), el("p",null,g.secret));
+    if(g.bridge){ card.append(el("h4",null,"Мостик к теме"), el("blockquote","bridge","«"+g.bridge.replace(/^«|»$/g,"")+"»")); }
+    if(g.detail){ const d = renderDetail(g.detail); if(g.detailHidden) d.hidden = true; card.append(d); }
+  }
+  if(g !== "loading"){
+    const act = el("div","actions");
+    if(g){
+      const d = el("button","ghost", !g.detail ? "Подробный сценарий" : g.detailHidden ? "Показать сценарий" : "Скрыть сценарий");
+      d.type="button"; d.dataset.act="detail"; d.dataset.i=i;
+      act.append(d);
+    }
+    const r = el("button","ghost", g ? "Другая игра" : "Подобрать эту игру");
+    r.type="button"; r.dataset.act="replace"; r.dataset.i=i;
+    act.append(r);
+    card.append(act);
+  }
+  const old = $("card-"+i);
+  if(old) old.replaceWith(card); else $("cards").append(card);
+  syncButtons();
+}
+function renderDetail(d){
+  const box = el("div","detail");
+  if(d === "loading"){ box.append(el("p","ph","Расписываю сценарий")); return box; }
+  const list = (title, arr)=>{ if(!arr||!arr.length) return; box.append(el("h4",null,title)); const l=el("ul"); arr.forEach(x=>l.append(el("li",null,x))); box.append(l); };
+  list("Чек-лист реквизита", d.checklist);
+  if(d.setup){ box.append(el("h4",null,"Подготовка"), el("p",null,d.setup)); }
+  if(d.script){ box.append(el("h4",null,"Слова ведущего в микрофон"), el("p","script",d.script)); }
+  if(d.timeline && d.timeline.length){
+    box.append(el("h4",null,"По минутам"));
+    const tl = el("dl","tl"); d.timeline.forEach(x=>tl.append(el("dt",null,x.t), el("dd",null,x.what))); box.append(tl);
+  }
+  list("Безопасность", d.safety);
+  if(d.punchline){ box.append(el("h4",null,"Финальный панчлайн"), el("p","script",d.punchline)); }
+  return box;
+}
+function renderAll(){
+  renderHead();
+  $("cards").textContent = "";
+  for(let i=0;i<state.slots.length;i++) renderCard(i);
+}
+function syncButtons(){
+  const off = busy || !available;
+  document.querySelectorAll("[data-act]").forEach(b=>{
+    const g = state.games[b.dataset.i];
+    b.disabled = off && !(b.dataset.act==="detail" && g && g.detail && g.detail!=="loading");
+  });
+  $("go").disabled = off || !counts.some(Boolean);
+  $("qgo").disabled = off;
+  document.querySelectorAll("[data-qact]").forEach(b=>{ b.disabled = off; });
+}
+function setStatus(t, err){ const s=$("status"); s.textContent=t||""; s.classList.toggle("err", !!err); }
+function save(){ store.set(state); }
+
+// ---------- ошибки ----------
+function errCopy(e){
+  const code = e && e.code;
+  switch(code){
+    case "not_granted": return "Доступ к Claude для этой страницы не разрешён. Обнови страницу и разреши, чтобы подбирать игры.";
+    case "sampling_disabled": case "capability_disabled": case "not_declared": case "capability_removed": return "Claude недоступен в этом окне. Пока можно смотреть пример.";
+    case "rate_limited": return "Слишком много запросов сегодня. Подожди и нажми ещё раз позже.";
+    case "session_expired": return "Нужно заново войти в Claude и обновить страницу.";
+    case "refused": return engine() + " не стал отвечать на такой запрос. Переформулируй тему или пожелания.";
+    case "invalid_json": case "empty_completion": case "empty": return "Ответ пришёл в неудобном виде. Нажми ещё раз.";
+    case "prompt_too_large": return "Слишком длинные вводные. Сократи тему и пожелания.";
+    case "network": return "Не удалось связаться с сервером. Проверь интернет.";
+    case "busy": return "GigaChat сейчас занят другим запросом. Нажми ещё раз через полминуты.";
+    case "quota": return "Закончился бесплатный лимит GigaChat.";
+    case "auth": case "config": return "Сервер настроен неправильно: проверь ключ GigaChat в функции.";
+    case "forbidden": return "Этот сайт не подключён к серверу: проверь ALLOWED_ORIGINS в функции.";
+    default: return (e && e.message) || "Связь прервалась. Нажми ещё раз.";
+  }
+}
+const FATAL = ["not_granted","sampling_disabled","capability_disabled","not_declared","capability_removed"];
+function handleErr(e, set){
+  set = set || setStatus;
+  if(e && e.code === "cancelled"){ set("Остановлено."); return; }
+  set(errCopy(e), true);
+  if(e && FATAL.includes(e.code)) available = false;
+}
+
+// ---------- запросы к ИИ ----------
+async function post(payload, signal){
+  let r;
+  try{ r = await fetch(API_URL, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload), signal}); }
+  catch(e){ throw {code: e && e.name==="AbortError" ? "cancelled" : "network"}; }
+  let j = null; try{ j = await r.json(); }catch(e){}
+  if(!r.ok || !j || j.error) throw {code:(j && j.error) || "upstream", message: j && j.message};
+  return j;
+}
+const plainGame = g => ({title:g.title, time:g.time, props:g.props, rules:g.rules, secret:g.secret, bridge:g.bridge});
+
+async function generate(){
+  if(!available || busy) return;
+  const b = readForm();
+  const slots = slotsFrom(b.counts), n = slots.length;
+  if(!n){ setStatus("Добавь хотя бы одну игру.", true); return; }
+  const prev = state;
+  state = {example:false, brief:b, slots, games:slots.map(()=>"loading")};
+  renderAll();
+  busy = true; ctl = new AbortController(); $("stop").hidden = false; syncButtons();
+  setStatus(engine() + " думает над подборкой — обычно до минуты.");
+  let got = 0;
+  const put = (idx, g) => {
+    if(!g) return;
+    if(!(idx>=0 && idx<n) || (state.games[idx] && state.games[idx]!=="loading")) idx = state.games.findIndex(x=>x==="loading");
+    if(idx<0) return;
+    state.games[idx] = g; got++; renderCard(idx, true);
+    setStatus("Готово " + got + " из " + n + "…");
+  };
+  try{
+    if(mode === "claude"){
+      let pending = "";
+      const eat = line => { const o = C.parseLine(line); const g = C.normGame(o); if(g) put(Number(o.slot)-1, g); };
+      const { text } = await sample(C.promptAll(b, slots, hist), {
+        signal: ctl.signal, cache:false,
+        onText: ({delta}) => { const lines=(pending+delta).split("\n"); pending=lines.pop(); lines.forEach(eat); }
+      });
+      eat(pending);
+      if(got < n) C.parseGames(text, n).forEach((g,i)=>{ if(g && got<n && !state.games.some(x=>x && x.title===g.title)) put(i, g); });
+    } else {
+      const j = await post({action:"all", brief:b, history:hist}, ctl.signal);
+      (j.games||[]).forEach((g,i)=> put(i, C.normGame(g)));
+    }
+    setStatus(got===n ? "Готово. Открой сценарий у понравившейся игры или замени лишнюю." : "Пришло " + got + " из " + n + ". Для пустых карточек нажми «Подобрать эту игру».", got<n);
+  }catch(e){
+    handleErr(e);
+    if(got===0) state = prev;
+  }finally{
+    state.games = state.games.map(g=> g==="loading" ? null : g);
+    busy = false; ctl = null; $("stop").hidden = true;
+    renderAll();
+    if(!state.example){ save(); addHistory(state.games.filter(Boolean).map(g=>g.title)); }
+  }
+}
+
+async function replaceOne(i){
+  if(!available || busy) return;
+  const b = state.brief, kind = state.slots[i], prevGame = state.games[i];
+  const current = prevGame && prevGame.title;
+  const others = state.games.map((g,j)=> (j!==i && g && g.title) ? g.title : null).filter(Boolean);
+  busy = true; syncButtons();
+  state.games[i] = "loading"; renderCard(i);
+  setStatus("Подбираю другую игру для карточки " + (i+1) + "…");
+  try{
+    let g;
+    if(mode === "claude") g = C.normGame(await sample.json(C.promptOne(b, kind, i+1, current, others, hist), {cache:false}));
+    else g = C.normGame((await post({action:"one", brief:b, kind, slot:i+1, current, others, history:hist})).game);
+    if(!g) throw {code:"invalid_json"};
+    state.games[i] = g; state.example = false;
+    addHistory([current, g.title]);
+    setStatus("Заменил игру " + (i+1) + ".");
+  }catch(e){
+    state.games[i] = prevGame; handleErr(e);
+  }finally{
+    busy = false; renderHead(); renderCard(i, true); save();
+  }
+}
+
+async function detail(i){
+  const g = state.games[i];
+  if(!g) return;
+  if(g.detail){ g.detailHidden = !g.detailHidden; renderCard(i); save(); return; }
+  if(!available || busy) return;
+  busy = true; syncButtons();
+  g.detail = "loading"; renderCard(i);
+  setStatus("Расписываю сценарий для «" + g.title + "»…");
+  try{
+    let d;
+    if(mode === "claude") d = C.normDetail(await sample.json(C.promptDetail(state.brief, state.slots[i], g)));
+    else d = C.normDetail((await post({action:"detail", brief:state.brief, kind:state.slots[i], game:plainGame(g)})).detail);
+    if(!d) throw {code:"invalid_json"};
+    g.detail = d; g.detailHidden = false;
+    setStatus("Сценарий готов.");
+  }catch(e){
+    delete g.detail; handleErr(e);
+  }finally{
+    busy = false; renderCard(i); save();
+  }
+}
+
+function asText(){
+  const b = state.brief, cnt = state.games.length;
+  let out = cnt + " " + plural(cnt,"игра","игры","игр") + ": " + b.age + " | " + b.size + " | " + b.time + "\nТема: " + (b.theme || "сплочение и драйв") + "\n";
+  state.games.forEach((g,i)=>{
+    if(!g || g==="loading") return;
+    out += "\n" + (i+1) + ". " + g.title + " (" + KINDS[state.slots[i]].label + ")\n";
+    out += "Время и формат: " + g.time + "\nРеквизит: " + g.props + "\nПравила:\n";
+    g.rules.forEach((r,j)=> out += "  " + (j+1) + ") " + r + "\n");
+    out += "Почему зайдёт: " + g.secret + "\n";
+    if(g.bridge) out += "Мостик: «" + g.bridge + "»\n";
+    const d = g.detail;
+    if(d && d!=="loading"){
+      if(d.checklist.length) out += "Чек-лист: " + d.checklist.join("; ") + "\n";
+      if(d.setup) out += "Подготовка: " + d.setup + "\n";
+      if(d.script) out += "Слова ведущего: " + d.script + "\n";
+      d.timeline.forEach(x=> out += "  " + x.t + " — " + x.what + "\n");
+      if(d.safety.length) out += "Безопасность: " + d.safety.join("; ") + "\n";
+      if(d.punchline) out += "Панчлайн: " + d.punchline + "\n";
+    }
+  });
+  return out;
+}
+
+// ---------- викторина ----------
+const QKEY = "igroteka:quiz:v1";
+const LETTERS = ["A","B","C","D"];
+const lvClass = n => n<=2 ? "lv1" : n<=7 ? "lv2" : n<=9 ? "lv3" : "lv4";
+const QEXAMPLE = {
+  example:true, showAnswers:true,
+  q:{source:"Книга или история", topic:"Иона", notes:"", age:"11–13 лет", wish:""},
+  items:[
+    {q:"Кого проглотила огромная рыба?", options:["Иова","Иону","Илию","Исаию"], correct:1, comment:"Четыре «И» подряд — ловушка для тех, кто путает пророков. В Синодальном переводе рыба, кстати, названа китом.", ref:"Ион 1:17"},
+    {q:"Сколько Иона пробыл внутри рыбы?", options:["Один день","Неделю","Три дня и три ночи","Сорок дней"], correct:2, comment:"Три дня без вайфая, света и доставки еды. Иисус потом сравнит это со Своим воскресением.", ref:"Ион 1:17; Мф 12:40"},
+    {q:"В какой город Бог послал Иону с проповедью?", options:["Иерусалим","Вавилон","Египет","Ниневия"], correct:3, comment:"Ниневия — столица Ассирии, главного врага Израиля. Представь, что тебя отправили проповедовать в школу, которая всегда вас травила.", ref:"Ион 1:2"},
+    {q:"Куда Иона попытался сбежать вместо этого?", options:["В Фарсис","В Дамаск","В пустыню","Домой к маме"], correct:0, comment:"Фарсис — в противоположной стороне от Ниневии. Иона выбрал маршрут «как можно дальше».", ref:"Ион 1:3"},
+    {q:"Что делал Иона, пока на корабле бушевала буря?", options:["Молился громче всех","Спал внизу корабля","Вычерпывал воду","Держал парус"], correct:1, comment:"Все в панике, а он спит. Такой уровень спокойствия на контрольной мы не советуем.", ref:"Ион 1:5"},
+    {q:"Как моряки выяснили, что буря из-за Ионы?", options:["Иона сразу признался","Капитану приснился сон","Бросили жребий","Увидели знак на небе"], correct:2, comment:"Жребий пал на Иону, и только тогда он рассказал правду. Признаться раньше было бы дешевле.", ref:"Ион 1:7"},
+    {q:"Что сделали жители Ниневии после проповеди Ионы?", options:["Выгнали его из города","Объявили пост и оделись во вретища","Посмеялись и забыли","Потребовали чудо"], correct:1, comment:"Покаялся весь город, от царя до скота: даже животным не давали есть. Очень короткая и очень успешная проповедь.", ref:"Ион 3:5–8"},
+    {q:"Почему Иона рассердился, когда Бог пощадил Ниневию?", options:["Ему не заплатили","Он устал с дороги","Знал, что Бог милостив, и не хотел, чтобы враги спаслись","Ему никто не поверил"], correct:2, comment:"Иона сам говорит: «я знал, что Ты — Бог благий и милосердый». Иногда злит не Божья строгость, а Его доброта к тем, кого мы не любим.", ref:"Ион 4:1–2"},
+    {q:"Зачем Бог вырастил над Ионой растение, а потом дал червю его подточить?", options:["Чтобы наказать Иону за побег","Чтобы показать: если Иона жалеет растение, как Богу не жалеть целый город","Чтобы Иона ушёл от Ниневии","Это вышло случайно"], correct:1, comment:"Иона расстроился из-за растения, которое даже не сажал. Бог задаёт ему вопрос — и ответ остаётся за нами.", ref:"Ион 4:6–11"},
+    {q:"Сколько людей в Ниневии, по словам Бога, «не умеют отличить правой руки от левой»?", options:["Около 7 000","Около 40 000","Более 120 000","Больше миллиона"], correct:2, comment:"А в конце Бог добавляет: «и множество скота». Он помнит даже про коров. Книга заканчивается вопросом Бога, а не ответом Ионы.", ref:"Ион 4:11"}
+  ].map((x,i)=>({...x, n:i+1, level:C.quizLevel(i+1)}))
+};
+let quiz = (()=>{ try{ const v = JSON.parse(localStorage.getItem(QKEY)||"null"); if(v && v.q && Array.isArray(v.items) && v.items.length===C.QUIZ_COUNT) return v; }catch(e){} return QEXAMPLE; })();
+function saveQuiz(){ if(quiz.example) return; try{ localStorage.setItem(QKEY, JSON.stringify(quiz)); }catch(e){} }
+function setQStatus(t, err){ const s=$("qstatus"); s.textContent=t||""; s.classList.toggle("err", !!err); }
+const checked = n => (document.querySelector('input[name="'+n+'"]:checked')||{}).value;
+
+function readQuiz(){
+  return {source:checked("qsource") || C.QUIZ_SOURCES[0], topic:$("qtopic").value.trim(), notes:$("qnotes").value.trim(),
+    age:checked("qage") || OPTS.age[0], wish:$("qwish").value.trim()};
+}
+function fillQuiz(q){
+  [["qsource",q.source],["qage",q.age]].forEach(([n,v])=>{ const all=[...document.getElementsByName(n)]; (all.find(x=>x.value===v)||all[0]).checked = true; });
+  $("qtopic").value = q.topic||""; $("qnotes").value = q.notes||""; $("qwish").value = q.wish||"";
+  syncSource();
+}
+function syncSource(){
+  const src = checked("qsource"), notes = src === "Конспект";
+  $("qNotesField").hidden = !notes; $("qTopicField").hidden = notes;
+  $("qTopicLbl").textContent = src === "Тема" ? "Тема" : "Книга или история";
+  $("qtopic").placeholder = src === "Тема" ? "Например: прощение, дружба, страх" : "Например: Иона, Руфь, Исход из Египта";
+  updNotesHint();
+}
+function updNotesHint(){ const n = $("qnotes").value.length; $("qNotesHint").textContent = n ? n + " из 8000 знаков" : "Вопросы будут строго по тексту конспекта."; }
+
+function renderQuizHead(){
+  const q = quiz.q;
+  $("qTitle").textContent = "Викторина: «" + (q.source === "Конспект" ? "по конспекту" : (q.topic || "—")) + "»";
+  const meta = $("qMeta"); meta.textContent = q.age + " · 10 вопросов от разминки до босс-уровня";
+  if(quiz.example) meta.append(el("span","badge","Пример"));
+  $("qToggle").textContent = quiz.showAnswers ? "Скрыть ответы" : "Показать ответы";
+  $("qcards").classList.toggle("answers", !!quiz.showAnswers);
+}
+function renderQCard(i, fresh){
+  const it = quiz.items[i], n = i+1;
+  const card = el("article","card qcard "+lvClass(n)+(fresh?" fresh":""));
+  card.id = "qcard-"+i;
+  card.append(el("span","tape", n+" · "+C.quizLevel(n)));
+  if(it === "loading"){
+    card.classList.add("loading"); card.append(el("p","ph","Придумываю вопрос"));
+  } else if(!it){
+    card.append(el("p",null,"Этот вопрос не пришёл."));
+  } else {
+    card.append(el("h3",null,it.q));
+    const ol = el("ol","opts");
+    it.options.forEach((o,j)=>{ const li = el("li", j===it.correct ? "ok" : null); li.append(el("span","let",LETTERS[j]), el("span",null,o)); ol.append(li); });
+    card.append(ol);
+    const ans = el("div","qans");
+    if(it.comment){ ans.append(el("h4",null,"Комментарий ведущего"), el("p","bridge","«"+it.comment.replace(/^«|»$/g,"")+"»")); }
+    if(it.ref) ans.append(el("p","ref","Где в Библии: "+it.ref));
+    card.append(ans);
+  }
+  if(it !== "loading"){
+    const act = el("div","actions"), row = el("div","fixrow");
+    const inp = el("input"); inp.id = "qfix-"+i; inp.placeholder = "Что поменять? Например: посложнее, про соцсети"; inp.setAttribute("aria-label","Что поменять в вопросе "+n);
+    const b = el("button","ghost", it ? "Заменить вопрос" : "Подобрать вопрос"); b.type="button"; b.dataset.qact="fix"; b.dataset.i=i;
+    row.append(inp, b); act.append(row); card.append(act);
+  }
+  const old = $("qcard-"+i);
+  if(old) old.replaceWith(card); else $("qcards").append(card);
+  syncButtons();
+}
+function renderQuiz(){ renderQuizHead(); $("qcards").textContent = ""; for(let i=0;i<C.QUIZ_COUNT;i++) renderQCard(i); }
+
+async function genQuiz(){
+  if(!available || busy) return;
+  const q = readQuiz();
+  if(q.source === "Конспект" ? q.notes.length < 40 : !q.topic){ setQStatus(q.source === "Конспект" ? "Вставь конспект хотя бы на пару абзацев." : "Напиши тему или книгу.", true); return; }
+  const prev = quiz, N = C.QUIZ_COUNT;
+  quiz = {example:false, showAnswers:prev.showAnswers !== false, q, items:new Array(N).fill("loading")};
+  renderQuiz();
+  busy = true; ctl = new AbortController(); $("qstop").hidden = false; syncButtons();
+  setQStatus(engine() + " собирает викторину — обычно до минуты.");
+  let got = 0;
+  const put = (idx, it) => {
+    if(!it) return;
+    if(!(idx>=0 && idx<N) || quiz.items[idx] !== "loading") idx = quiz.items.findIndex(x=>x==="loading");
+    if(idx < 0) return;
+    quiz.items[idx] = C.shuffleQuestion({...it, n:idx+1, level:C.quizLevel(idx+1)}); got++; renderQCard(idx, true);
+    setQStatus("Готово " + got + " из " + N + "…");
+  };
+  try{
+    if(mode === "claude"){
+      let pending = "";
+      const eat = line => { const o = C.parseLine(line); if(!o) return; const n = Number(o.n); const it = C.normQuestion(o, n>=1 && n<=N ? n : 1); if(it) put(n-1, it); };
+      const { text } = await sample(C.promptQuiz(q), { signal:ctl.signal, cache:false,
+        onText: ({delta}) => { const lines=(pending+delta).split("\n"); pending=lines.pop(); lines.forEach(eat); } });
+      eat(pending);
+      if(got < N) C.parseQuestions(text, N).forEach((it,i)=>{ if(it && quiz.items[i]==="loading" && !quiz.items.some(x=>x && x.q===it.q)) put(i, it); });
+    } else {
+      const j = await post({action:"quiz", quiz:q}, ctl.signal);
+      (j.items||[]).forEach((it,i)=> put(i, it && C.normQuestion(it, i+1)));
+    }
+    setQStatus(got===N ? "Готово. Можно сразу жать «Играть на экране»." : "Пришло " + got + " из " + N + ". Для пустых нажми «Подобрать вопрос».", got<N);
+  }catch(e){
+    handleErr(e, setQStatus);
+    if(got === 0) quiz = prev;
+  }finally{
+    quiz.items = quiz.items.map(x=> x==="loading" ? null : x);
+    busy = false; ctl = null; $("qstop").hidden = true;
+    renderQuiz(); saveQuiz();
+  }
+}
+
+async function fixQuestion(i){
+  if(!available || busy) return;
+  const n = i+1, prevIt = quiz.items[i], wish = ($("qfix-"+i) || {}).value || "";
+  const current = prevIt ? prevIt.q + " Варианты: " + prevIt.options.join(" / ") + ". Верный: " + prevIt.options[prevIt.correct] : "";
+  const others = quiz.items.map((x,j)=> j!==i && x && x.q ? x.q : null).filter(Boolean);
+  busy = true; syncButtons();
+  quiz.items[i] = "loading"; renderQCard(i);
+  setQStatus("Переписываю вопрос " + n + "…");
+  try{
+    let it;
+    if(mode === "claude") it = C.normQuestion(await sample.json(C.promptQuizOne(quiz.q, n, current, wish.trim(), others), {cache:false}), n);
+    else it = C.normQuestion((await post({action:"quiz_one", quiz:quiz.q, n, current, wish:wish.trim(), others})).item, n);
+    if(!it) throw {code:"invalid_json"};
+    quiz.items[i] = C.shuffleQuestion(it); quiz.example = false;
+    setQStatus("Вопрос " + n + " заменён.");
+  }catch(e){
+    quiz.items[i] = prevIt; handleErr(e, setQStatus);
+  }finally{
+    busy = false; renderQuizHead(); renderQCard(i, true); saveQuiz();
+  }
+}
+
+function quizText(){
+  const q = quiz.q;
+  let out = "Викторина: «" + (q.source === "Конспект" ? "по конспекту" : q.topic) + "»\n(Аудитория: " + q.age + " | 10 вопросов с нарастающей сложностью)\n";
+  quiz.items.forEach((it,i)=>{
+    if(!it || it==="loading") return;
+    out += "\nВопрос " + (i+1) + " [" + C.quizLevel(i+1) + "]\n" + it.q + "\n";
+    it.options.forEach((o,j)=> out += LETTERS[j] + ") " + o + "\n");
+    out += "Правильный ответ: " + LETTERS[it.correct] + ") " + it.options[it.correct] + "\n";
+    if(it.comment) out += "Комментарий ведущего: «" + it.comment + "»\n";
+    if(it.ref) out += "Где в Библии: " + it.ref + "\n";
+  });
+  return out;
+}
+
+// ---------- игра на экране ----------
+// picks[i]: null — ещё не отвечали, -1 — ответ показан без выбора, 0..3 — выбранный вариант
+let showIdx = 0, picks = [], finished = false, lastPicked = -1;
+const qPts = n => n === C.QUIZ_COUNT ? 2 : 1;           // босс-вопрос ×2
+const validQ = i => { const it = quiz.items[i]; return it && it !== "loading"; };
+function quizScore(){ return picks.reduce((s,p,i)=> s + (validQ(i) && p === quiz.items[i].correct ? qPts(i+1) : 0), 0); }
+function quizMax(){ let m = 0; for(let i=0;i<C.QUIZ_COUNT;i++) if(validQ(i)) m += qPts(i+1); return m; }
+function openShow(){
+  const first = quiz.items.findIndex((x,i)=>validQ(i));
+  if(first < 0){ setQStatus("Сначала собери викторину.", true); return; }
+  showIdx = first; picks = new Array(C.QUIZ_COUNT).fill(null); finished = false; lastPicked = -1;
+  $("show").hidden = false; document.body.style.overflow = "hidden";
+  renderShow(); const b = $("showOpts").querySelector("button"); (b || $("showReveal")).focus();
+}
+function closeShow(){
+  $("show").hidden = true; document.body.style.overflow = "";
+  if(document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+  $("qShow").focus();
+}
+function renderShow(){
+  $("showScore").textContent = "Очки: " + quizScore();
+  $("showMain").hidden = finished; $("showEnd").hidden = !finished;
+  $("showLevel").hidden = finished;
+  if(finished){ $("showX2").hidden = true; $("showCount").textContent = ""; renderEnd(); return; }
+  const it = quiz.items[showIdx], n = showIdx+1, ok = validQ(showIdx), p = picks[showIdx], answered = p !== null;
+  const tape = $("showLevel"); tape.className = "tape " + lvClass(n); tape.textContent = C.quizLevel(n);
+  $("showX2").hidden = qPts(n) < 2;
+  $("showCount").textContent = "Вопрос " + n + " из " + C.QUIZ_COUNT;
+  $("showQ").textContent = ok ? it.q : "Этот вопрос не пришёл";
+  const ol = $("showOpts"); ol.textContent = "";
+  if(ok) it.options.forEach((o,j)=>{
+    const li = el("li"), b = el("button","opt"); b.type = "button"; b.dataset.j = j;
+    b.append(el("span","let",LETTERS[j]), el("span",null,o));
+    if(answered){
+      b.disabled = true;
+      if(j === it.correct){ b.classList.add("ok"); b.append(el("span","mark","✓")); if(p === j && lastPicked === j) b.classList.add("picked"); }
+      else if(j === p){ b.classList.add("bad"); b.append(el("span","mark","✗")); }
+      else b.classList.add("dim");
+    }
+    li.append(b); ol.append(li);
+  });
+  const v = $("showVerdict");
+  v.hidden = !(answered && ok);
+  if(answered && ok){
+    if(p === -1){ v.textContent = "Правильный ответ — " + LETTERS[it.correct]; v.className = "show-verdict"; }
+    else if(p === it.correct){ v.textContent = "Верно! +" + qPts(n) + (qPts(n) > 1 ? " очка" : " очко"); v.className = "show-verdict good"; }
+    else { v.textContent = "Мимо! Правильно — " + LETTERS[it.correct]; v.className = "show-verdict miss"; }
+  }
+  $("showComment").hidden = !(answered && ok && it.comment); $("showComment").textContent = ok ? it.comment : "";
+  $("showRef").hidden = !(answered && ok && it.ref); $("showRef").textContent = ok && it.ref ? "Где в Библии: " + it.ref : "";
+  $("showReveal").hidden = answered || !ok;
+  $("showPrev").disabled = showIdx === 0;
+  const strong = answered || !ok;   // у .primary стрелка дорисовывается сама
+  $("showNext").textContent = (showIdx === C.QUIZ_COUNT-1 ? "Итоги" : "Дальше") + (strong ? "" : " →");
+  $("showNext").className = strong ? "primary" : "ghost";
+}
+function renderEnd(){
+  const sc = quizScore(), mx = quizMax(), r = mx ? sc / mx : 0;
+  const sEl = $("endScore"); sEl.textContent = sc; sEl.append(el("small",null," / " + mx));
+  $("endMsg").textContent = r >= .9 ? "Легенда! Босс-вопрос повержен." : r >= .7 ? "Мощно! Почти без ошибок." : r >= .4 ? "Неплохо — есть что вспомнить." : "Отличный повод перечитать историю ещё раз.";
+  const ol = $("endDots"); ol.textContent = "";
+  for(let i=0;i<C.QUIZ_COUNT;i++){
+    if(!validQ(i)) continue;
+    const p = picks[i], good = p === quiz.items[i].correct;
+    const li = el("li", good ? "ok" : (p !== null && p >= 0 ? "bad" : null), String(i+1));
+    li.title = "Вопрос " + (i+1) + ": " + (good ? "верно" : p === null ? "без ответа" : p === -1 ? "ответ показан" : "мимо");
+    ol.append(li);
+  }
+  $("endAgain").focus();
+}
+function pickAnswer(j){
+  if(finished || !validQ(showIdx) || picks[showIdx] !== null) return;
+  picks[showIdx] = j; lastPicked = j; renderShow();
+  $("showNext").focus();
+}
+function showStep(d){
+  if(finished) return;
+  if(d > 0 && showIdx === C.QUIZ_COUNT-1){ finished = true; renderShow(); return; }
+  const k = Math.max(0, Math.min(C.QUIZ_COUNT-1, showIdx+d)); if(k === showIdx) return;
+  showIdx = k; lastPicked = -1; renderShow();
+}
+
+// ---------- разделы ----------
+function route(){
+  const isQuiz = location.hash === "#quiz";
+  if(!isQuiz && !$("show").hidden){ $("show").hidden = true; document.body.style.overflow = ""; }
+  $("brief").hidden = isQuiz; $("results").hidden = isQuiz;
+  $("quizForm").hidden = !isQuiz; $("quizResults").hidden = !isQuiz;
+  [["tab-games",!isQuiz],["tab-quiz",isQuiz]].forEach(([id,on])=>{ if(on) $(id).setAttribute("aria-current","page"); else $(id).removeAttribute("aria-current"); });
+}
+
+// ---------- запуск ----------
+buildSeg(); buildKinds(); fillForm(state.brief); renderAll(); renderMemory();
+if(!state.example) addHistory(state.games.filter(g=>g && g!=="loading").map(g=>g.title));
+document.querySelector('.seg[data-name="novelty"]').addEventListener("change", showNoveltyHint);
+$("memory").addEventListener("click", e=>{
+  if(e.target.id !== "forget") return;
+  hist = []; try{ localStorage.removeItem(HKEY); }catch(err){}
+  renderMemory(); setStatus("Память очищена — игры могут повторяться.");
+});
+$("brief").addEventListener("submit", e=>{ e.preventDefault(); generate(); });
+$("stop").addEventListener("click", ()=>{ if(ctl) ctl.abort(); });
+$("cards").addEventListener("click", e=>{
+  const b = e.target.closest("[data-act]"); if(!b) return;
+  const i = Number(b.dataset.i);
+  if(b.dataset.act==="detail") detail(i); else replaceOne(i);
+});
+$("copyAll").addEventListener("click", ()=>{
+  const t = asText(), box = $("copyBox");
+  const fallback = ()=>{ box.hidden=false; box.value=t; box.focus(); box.select(); setStatus("Выдели и скопируй текст под заголовком."); };
+  try{
+    navigator.clipboard.writeText(t).then(()=>{ box.hidden=true; setStatus("Скопировано — можно вставлять в Telegram или заметки."); }, fallback);
+  }catch(err){ fallback(); }
+});
+
+// викторина
+fillQuiz(quiz.q); renderQuiz(); route();
+window.addEventListener("hashchange", route);
+document.querySelector('.seg[data-name="qsource"]').addEventListener("change", syncSource);
+$("qnotes").addEventListener("input", updNotesHint);
+$("quizForm").addEventListener("submit", e=>{ e.preventDefault(); genQuiz(); });
+$("qstop").addEventListener("click", ()=>{ if(ctl) ctl.abort(); });
+$("qcards").addEventListener("click", e=>{ const b = e.target.closest("[data-qact]"); if(b) fixQuestion(Number(b.dataset.i)); });
+$("qcards").addEventListener("keydown", e=>{ if(e.key==="Enter" && e.target.id && e.target.id.startsWith("qfix-")){ e.preventDefault(); fixQuestion(Number(e.target.id.slice(5))); } });
+$("qToggle").addEventListener("click", ()=>{ quiz.showAnswers = !quiz.showAnswers; renderQuizHead(); saveQuiz(); });
+$("qCopy").addEventListener("click", ()=>{
+  const t = quizText(), box = $("qCopyBox");
+  const fallback = ()=>{ box.hidden=false; box.value=t; box.focus(); box.select(); setQStatus("Выдели и скопируй текст под заголовком."); };
+  try{ navigator.clipboard.writeText(t).then(()=>{ box.hidden=true; setQStatus("Скопировано — можно вставлять в презентацию, Telegram или Kahoot."); }, fallback); }
+  catch(err){ fallback(); }
+});
+$("qShow").addEventListener("click", openShow);
+$("showClose").addEventListener("click", closeShow);
+$("showPrev").addEventListener("click", ()=>showStep(-1));
+$("showNext").addEventListener("click", ()=>showStep(1));
+$("showReveal").addEventListener("click", ()=>{ if(picks[showIdx] === null){ picks[showIdx] = -1; lastPicked = -1; renderShow(); $("showNext").focus(); } });
+$("showOpts").addEventListener("click", e=>{ const b = e.target.closest("button[data-j]"); if(b) pickAnswer(Number(b.dataset.j)); });
+$("endAgain").addEventListener("click", openShow);
+$("endClose").addEventListener("click", closeShow);
+$("endReview").addEventListener("click", ()=>{ finished = false; showIdx = 0; lastPicked = -1; renderShow(); });
+if(!document.fullscreenEnabled) $("showFs").hidden = true;
+$("showFs").addEventListener("click", ()=>{
+  if(document.fullscreenElement){ document.exitFullscreen().catch(()=>{}); return; }
+  const p = $("show").requestFullscreen && $("show").requestFullscreen();
+  if(p && p.catch) p.catch(()=>{ $("showFs").hidden = true; });
+});
+document.addEventListener("keydown", e=>{
+  if($("show").hidden) return;
+  const onBtn = e.target && e.target.tagName === "BUTTON";
+  if(e.key==="Escape"){ closeShow(); }
+  else if(e.key==="ArrowRight" || e.key==="PageDown"){ e.preventDefault(); showStep(1); }
+  else if(e.key==="ArrowLeft" || e.key==="PageUp"){ e.preventDefault(); showStep(-1); }
+  else if(!finished && /^[1-4]$/.test(e.key)){ e.preventDefault(); pickAnswer(Number(e.key)-1); }
+  else if(!finished && "abcdабвг".includes(e.key.toLowerCase()) && e.key.length===1){ e.preventDefault(); pickAnswer("abcdабвг".indexOf(e.key.toLowerCase()) % 4); }
+  else if((e.key===" " || e.key==="Enter") && !onBtn && !finished){ e.preventDefault(); if(picks[showIdx] === null){ picks[showIdx] = -1; renderShow(); } else showStep(1); }
+});
+
+setStatus("Подключаюсь…");
+(async()=>{
+  if(window.claude && window.claude.use){ try{ sample = await window.claude.use("sample"); }catch(e){ sample = null; } }
+  mode = sample ? "claude" : (API_URL ? "server" : null);
+  available = !!mode;
+  const idle = state.example ? "Сейчас показан пример. Выбери вводные и нажми «Подобрать»." : "";
+  setStatus(available ? idle : "Подбор пока не подключён: в странице не указан адрес сервера. Показан пример.", false);
+  setQStatus(available ? (quiz.example ? "Сейчас показан пример. Выбери основу и нажми «Собрать викторину»." : "") : "Генерация пока не подключена. Показан пример — «Играть на экране» работает.", false);
+  syncButtons();
+})();
+})();
+</script>
+
+</body></html>
