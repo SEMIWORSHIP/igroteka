@@ -4,20 +4,25 @@
 "use strict";
 
 const OPTS = {
-  age: ["11–13 лет","14–16 лет","17+","Смешанная группа"],
-  size: ["5–10 человек","15–30 человек","30–80+ человек"],
-  time: ["3–5 минут на игру","10–15 минут на игру","Блок 20–30 минут"],
-  novelty: ["Классика","Свежий поворот","Совсем новое"]
+  age: ["9–14 лет","14–23 года"],
+  size: ["5–10 человек","10–15 человек","15–20 человек","20–25 человек","25+ человек"],
+  time: ["до 5 минут","5–10 минут","10–20 минут","20–30 минут","30+ минут"],
+  novelty: ["Классика","Свежий поворот","Совсем новое"],
+  mode: ["Просто игры","Под тему проповеди"]
 };
-const DEFAULTS = {novelty:"Свежий поворот"};
+const DEFAULTS = {novelty:"Свежий поворот", mode:"Просто игры", size:"10–15 человек", time:"10–20 минут"};
+const AGE_NOTE = {
+  "9–14 лет": "младшие: больше движения и простых понятных механик, короткие объяснения, конкретные предметы; никаких сложных социальных игр с долгим обдумыванием",
+  "14–23 года": "подростки и молодёжь: можно социальные игры, блеф, командные стратегии и более глубокий разговор после игры; ничего детского"
+};
 const MAX_TOTAL = 8;
 
 const KINDS = [
-  {cls:"k1", label:"Ледокол", need:"быстрый ледокол 3–5 минут, без реквизита или только стулья; цель — разговорить и растопить неловкость за 2 минуты"},
-  {cls:"k2", label:"Командный драйв", need:"командный драйв и смех 7–12 минут, баттл команд; реквизит — стаканчики, бумага, скотч или шарики; цель — сбросить школьную усталость"},
-  {cls:"k3", label:"Блеф и интуиция", need:"социальная игра на блеф, вычисление «шпиона», чтение эмоций или необычные факты друг о друге, 10–15 минут, сидя"},
-  {cls:"k4", label:"Со смартфонами", need:"интерактив со смартфонами ребят или экраном 5–10 минут: фото-охота по залу, битва стикеров, музыка наоборот, поиск по эмодзи"},
-  {cls:"k5", label:"Игра-метафора", need:"игра-метафора 10–15 минут, которая телом и действием показывает духовную истину темы и даёт спикеру завязку для проповеди; если темы нет — игра на единство и поддержку в команде"}
+  {cls:"k1", label:"Ледокол", need:"быстрый ледокол без реквизита или только со стульями; цель — разговорить и растопить неловкость"},
+  {cls:"k2", label:"Командный драйв", need:"командный драйв и смех, баттл команд; реквизит — стаканчики, бумага, скотч или шарики; цель — сбросить усталость и поднять энергию"},
+  {cls:"k3", label:"Блеф и интуиция", need:"социальная игра на блеф, вычисление «шпиона», чтение эмоций или необычные факты друг о друге, сидя"},
+  {cls:"k4", label:"Со смартфонами", need:"интерактив со смартфонами ребят или экраном: фото-охота по залу, битва стикеров, музыка наоборот, поиск по эмодзи"},
+  {cls:"k5", label:"Игра-метафора", need:"игра-метафора, которая телом и действием показывает духовную истину; если темы нет — игра на единство и поддержку в команде"}
 ];
 
 const NOVELTY = {
@@ -63,22 +68,36 @@ function skill(b){
 - ${NOVELTY[b.novelty] || NOVELTY[DEFAULTS.novelty]}
 - Никаких игр с кучей редких предметов или запутанными правилами, которые хороши только на бумаге.
 - Минимальный подручный реквизит: пластиковые стаканчики, скотч, бумага А4, маркеры, стулья, смартфоны ребят или вообще ничего.
-- Учитывай возраст, число людей, время и помещение: правила должны реально работать в таком зале с таким количеством ребят.
+- Учитывай возраст, число людей, время и помещение: правила должны реально работать в таком зале с таким количеством ребят. Каждая игра укладывается в выбранное время — подстрой число раундов.
+- Возраст: ${AGE_NOTE[b.age] || ""}.
+- ПРАВИЛА РАЗЖЁВЫВАЙ. Пиши так, будто лидер никогда не видел эту игру и прочитает правила ребятам вслух: сначала как подготовить и как рассадить или разделить людей, потом ход игры по шагам, потом как определяется победитель и когда игра заканчивается. Один шаг — одно действие, простыми словами, без игровых терминов и сокращений. Не пропускай очевидные для тебя детали: кто начинает, сколько длится раунд, что делать, если ошиблись.
 - Если упоминаешь Библию — только то, что действительно есть в каноническом тексте. Не выдумывай цитат; ссылку на стих давай, только если уверен.
 - Пиши по-русски, живым простым языком, без канцелярита.
 - Внутри текста используй только кавычки-ёлочки «», никогда не ставь прямые кавычки " внутри текста — они ломают JSON.`;
 }
+function themed(b){ return b.mode === "Под тему проповеди" && !!b.theme; }
 function briefText(b){
   return `Вводные:
 - Возраст: ${b.age}
 - Сколько человек: ${b.size}
-- Время: ${b.time}
+- Время на одну игру: ${b.time}
 - Насколько необычно: ${b.novelty || DEFAULTS.novelty}
-- Тема проповеди: ${b.theme || "не указана — делаем сплочение и драйв"}
+- Тема: ${themed(b) ? b.theme : "без темы — просто весёлые игры на сплочение и драйв"}
 - Помещение: ${b.room || "не указано"}
 - Пожелания лидера: ${b.wish || "нет"}`;
 }
-const GAME_SHAPE = `{"slot":1,"title":"Название","time":"3–5 минут | все вместе | стоя в кругу","props":"Реквизит одной строкой","rules":["шаг 1","шаг 2","шаг 3"],"secret":"Почему подросткам не стыдно участвовать и что снимает барьер, 1–2 предложения","bridge":"Реплика ведущего на ~30 секунд для перехода к теме проповеди"}`;
+const GAME_SHAPE_BASE = `"slot":1,"title":"Название","time":"5–10 минут | все вместе | стоя в кругу","props":"Реквизит одной строкой с количеством","goal":"Цель игры и как выиграть — одно понятное предложение","rules":["Подготовка: …","Шаг 1: …","Шаг 2: …","Как выиграть: …"],"example":"Пример одного раунда вживую: кто что говорит и делает, 2–3 предложения","secret":"Почему ребятам не стыдно участвовать, 1 предложение"`;
+function gameShape(b, slotNo){
+  const base = GAME_SHAPE_BASE.replace('"slot":1', '"slot":' + (slotNo || 1));
+  return themed(b)
+    ? `{${base},"bridge":"Итог после игры: в чём аналогия игры с темой «${b.theme}», 2–4 предложения простыми словами, с опорой на конкретное место Писания","question":"Один вопрос ребятам для обсуждения после игры"}`
+    : `{${base}}`;
+}
+function themeRule(b){
+  return themed(b)
+    ? `ВСЕ ИГРЫ — ПОД ТЕМУ «${b.theme}». Придумай игру или переделай известную механику так, чтобы сама игра наглядно показывала эту тему: её правила, роли или финал должны рождать ощущение, о котором потом скажет проповедник. В поле bridge — итог для ребят: аналогия между тем, что они только что пережили в игре, и темой, простыми словами, с опорой на Писание. В поле question — вопрос для обсуждения.`
+    : `Игры без привязки к теме: просто весело, сплачивает и снимает напряжение. Поля bridge и question не нужны.`;
+}
 
 function promptAll(b, slots, hist){
   const n = slots.length, seeds = seedsFor(slots);
@@ -89,10 +108,12 @@ function promptAll(b, slots, hist){
 
 ` + variety(b, hist) + `
 
-rules — 3–6 коротких понятных шагов. bridge — живая реплика ведущего; если темы нет, мостик к мысли о единстве и поддержке друг друга.
+${themeRule(b)}
+
+rules — 4–8 шагов, разжёванных простыми словами.
 
 Ответь строками JSON, ровно ${n} шт. Каждая строка — один JSON-объект вида
-${GAME_SHAPE}
+${gameShape(b)}
 slot от 1 до ${n} по порядку. Никакого markdown, никаких пояснений, только ${n} строк JSON.`;
 }
 function promptOne(b, kind, slotNo, current, others, hist){
@@ -101,9 +122,10 @@ function promptOne(b, kind, slotNo, current, others, hist){
 Нужна одна игра для слота ${slotNo} — ${KINDS[kind].label}: ${KINDS[kind].need}.${seedLine(kind)}
 ${variety(b, hist, true)}
 ${current ? "Предложи другую, не «" + current + "»." : ""}${others && others.length ? " В подборке уже есть: " + others.join(", ") + " — не повторяй их." : ""}
-rules — 3–6 коротких шагов.
+${themeRule(b)}
+rules — 4–8 шагов, разжёванных простыми словами.
 Ответь только одним JSON-объектом вида
-${GAME_SHAPE.replace('"slot":1','"slot":'+slotNo)}`;
+${gameShape(b, slotNo)}`;
 }
 function promptDetail(b, kind, g){
   return skill(b) + "\n\n" + briefText(b) + `
@@ -112,16 +134,18 @@ function promptDetail(b, kind, g){
 Название: ${g.title}
 Формат: ${g.time}
 Реквизит: ${g.props}
+Цель: ${g.goal || "—"}
 Правила: ${g.rules.join(" / ")}
-Мостик: ${g.bridge || "—"}
+${themed(b) ? "Итог по теме: " + (g.bridge || "—") : ""}
 
-Распиши её для проведения. Ответь только JSON-объектом:
+Распиши её для проведения так подробно и просто, чтобы её провёл даже новичок. Ответь только JSON-объектом:
 {"checklist":["точный список реквизита с количеством"],"setup":"как подготовить зал, 1–3 предложения","script":"дословные слова ведущего в микрофон: объяснение правил за 45 секунд, без занудства","timeline":[{"t":"0:00–0:45","what":"что происходит"}],"safety":["как избежать травм и обид"],"punchline":"яркая финальная реплика и связка со следующим блоком программы"}`;
 }
 
 // ---------- викторина ----------
 const QUIZ_SOURCES = ["Тема","Книга или история","Конспект"];
 const QUIZ_COUNT = 10;
+const NOTES_MAX = 15000;
 function quizLevel(n){ return n<=2 ? "Разминка" : n<=7 ? "Сюжет и факты" : n<=9 ? "Логика и суть" : "Босс-уровень"; }
 const QUIZ_LEVEL_NEED = {
   "Разминка": "вопрос полегче — тот, кто знает историю, ответит уверенно, но угадать его по вариантам нельзя",
@@ -142,7 +166,7 @@ function quizSkill(){
 - Перед ответом проверь каждый вопрос: можно ли выбрать верный ответ без знания текста, просто отбросив нелепые варианты или выбрав самый длинный? Если да — переделай варианты.
 - Никакого молодёжного сленга и интернет-шуток: никаких донатов, лайков, стримов, Netflix, соцсетей, брендов, мемов, «кринжа», «рофла» и т. п. — ни в вопросах, ни в вариантах, ни в комментариях. Язык живой и понятный, но нормальный — как у хорошего учителя.
 - После каждого вопроса — комментарий ведущего на 1–2 предложения: интересная деталь из текста, связь с другим местом Писания или короткая мысль, зачем это нам. Можно с доброй улыбкой, но без сленга. В комментарии не называй букву ответа.
-- Возраст: 11–13 — простые слова, вопросы о героях, событиях и местах; 14–16 — больше деталей, порядок событий и связи между историями; 17+ — контекст, исторические детали и смысл.
+- Возраст: 9–14 — простые слова, вопросы о героях, событиях, местах и числах; 14–23 — больше деталей, порядок событий, связи между историями, контекст и смысл.
 - Библейские факты — только из канонического текста Библии (66 книг), без апокрифов и преданий. Сверяйся с Синодальным переводом и не выдумывай деталей, которых нет в тексте. В поле ref укажи, где это написано (например «Ион 1:17»); если вопрос не про конкретное место — оставь ref пустым.
 - Пиши по-русски.
 - Внутри текста вопросов, вариантов и комментариев используй только кавычки-ёлочки «», никогда не ставь прямые кавычки " внутри текста — они ломают JSON.`;
@@ -237,7 +261,7 @@ function parseQuestions(text, count){
 function cleanQuiz(q){
   q = q && typeof q === "object" ? q : {};
   return {source: QUIZ_SOURCES.includes(q.source) ? q.source : QUIZ_SOURCES[0],
-    topic: cleanStr(q.topic, 200), notes: String(q.notes==null ? "" : q.notes).replace(/\u0000/g,"").trim().slice(0, 8000),
+    topic: cleanStr(q.topic, 200), notes: String(q.notes==null ? "" : q.notes).replace(/\u0000/g,"").trim().slice(0, NOTES_MAX),
     age: OPTS.age.includes(q.age) ? q.age : OPTS.age[0], wish: cleanStr(q.wish, 200)};
 }
 
@@ -246,7 +270,7 @@ function normGame(o){
   if(!o || typeof o!=="object") return null;
   const s = v => (v==null ? "" : String(v)).trim();
   const rules = Array.isArray(o.rules) ? o.rules.map(s).filter(Boolean) : s(o.rules).split(/\n+/).filter(Boolean);
-  const g = {title:s(o.title), time:s(o.time), props:s(o.props), rules, secret:s(o.secret), bridge:s(o.bridge)};
+  const g = {title:s(o.title), time:s(o.time), props:s(o.props), goal:s(o.goal), rules, example:s(o.example), secret:s(o.secret), bridge:s(o.bridge), question:s(o.question)};
   return g.title && rules.length ? g : null;
 }
 function normDetail(o){
@@ -339,19 +363,20 @@ function cleanBrief(b){
   const one = (n) => OPTS[n].includes(b[n]) ? b[n] : (DEFAULTS[n] || OPTS[n][0]);
   let counts = Array.isArray(b.counts) && b.counts.length === 5 ? b.counts.map(x=>Math.max(0, Math.min(MAX_TOTAL, Math.floor(Number(x)||0)))) : [1,1,1,1,1];
   let total = 0; counts = counts.map(c=>{ const take = Math.max(0, Math.min(c, MAX_TOTAL - total)); total += take; return take; });
-  return {age:one("age"), size:one("size"), time:one("time"), novelty:one("novelty"), counts,
+  const mode = OPTS.mode.includes(b.mode) ? b.mode : (b.theme ? "Под тему проповеди" : DEFAULTS.mode);
+  return {age:one("age"), size:one("size"), time:one("time"), novelty:one("novelty"), mode, counts,
     theme:cleanStr(b.theme, 120), room:cleanStr(b.room, 120), wish:cleanStr(b.wish, 200)};
 }
 function cleanTitles(arr, max){ return (Array.isArray(arr) ? arr : []).map(x=>cleanStr(x, 80)).filter(Boolean).slice(-max); }
 function cleanGame(g){
   const n = normGame(g); if(!n) return null;
-  return {title:cleanStr(n.title,120), time:cleanStr(n.time,160), props:cleanStr(n.props,240),
-    rules:n.rules.slice(0,8).map(r=>cleanStr(r,400)), secret:cleanStr(n.secret,400), bridge:cleanStr(n.bridge,600)};
+  return {title:cleanStr(n.title,120), time:cleanStr(n.time,160), props:cleanStr(n.props,240), goal:cleanStr(n.goal,300),
+    rules:n.rules.slice(0,10).map(r=>cleanStr(r,400)), example:cleanStr(n.example,600), secret:cleanStr(n.secret,400), bridge:cleanStr(n.bridge,800), question:cleanStr(n.question,300)};
 }
 
 const api = {OPTS, DEFAULTS, MAX_TOTAL, KINDS, plural, slotsFrom, promptAll, promptOne, promptDetail,
   normGame, normDetail, parseLine, parseJsonLoose, parseGames, cleanBrief, cleanTitles, cleanGame, cleanStr,
-  QUIZ_SOURCES, QUIZ_COUNT, quizLevel, promptQuiz, promptQuizOne, promptQuizFill, normQuestion, shuffleQuestion, parseQuestions, cleanQuiz};
+  QUIZ_SOURCES, QUIZ_COUNT, NOTES_MAX, quizLevel, themed, promptQuiz, promptQuizOne, promptQuizFill, normQuestion, shuffleQuestion, parseQuestions, cleanQuiz};
 if (typeof module === "object" && module.exports) module.exports = api;
 else root.IgrotekaCore = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

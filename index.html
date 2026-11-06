@@ -178,6 +178,9 @@ button:disabled{opacity:.5;cursor:default}
 .fixrow input{flex:1;min-width:180px;font:inherit;font-size:14px;color:var(--ink);background:var(--sunk);border:2px solid var(--line);border-radius:12px;padding:8px 12px}
 .fixrow input:focus-visible{outline:none;box-shadow:3px 3px 0 var(--hero)}
 .res-tools{display:flex;flex-wrap:wrap;gap:8px}
+.filerow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.field textarea.drop{box-shadow:4px 4px 0 var(--pink);border-style:dashed}
+.goal{font-weight:600}
 
 /* ---------- показ на экране ---------- */
 .show{position:fixed;inset:0;z-index:60;background:var(--hero);color:#FFFFFF;display:flex;flex-direction:column;gap:clamp(16px,3vh,32px);overflow:auto;
@@ -271,10 +274,14 @@ button:disabled{opacity:.5;cursor:default}
       <div class="seg" data-name="novelty"></div>
       <p class="hint" id="noveltyHint"></p>
     </fieldset>
-    <div class="field">
+    <fieldset>
+      <legend>Тема игр</legend>
+      <div class="seg" data-name="mode"></div>
+    </fieldset>
+    <div class="field" id="themeField">
       <label class="lbl" for="theme">Тема проповеди</label>
       <input id="theme" placeholder="Например: доверие, зависть, прощение">
-      <p class="hint">Пусто — сделаю игры на сплочение и драйв.</p>
+      <p class="hint">Каждая игра будет показывать эту тему, а после неё — итог-аналогия и вопрос ребятам.</p>
     </div>
     <div class="field">
       <label class="lbl" for="room">Помещение</label>
@@ -316,6 +323,11 @@ button:disabled{opacity:.5;cursor:default}
     </div>
     <div class="field" id="qNotesField" hidden>
       <label class="lbl" for="qnotes">Конспект проповеди</label>
+      <div class="filerow">
+        <button type="button" class="ghost" id="qFileBtn">Загрузить файл</button>
+        <span class="hint" id="qFileName">Word (.docx), PDF или .txt — или перетащи файл в поле ниже</span>
+        <input type="file" id="qfile" accept=".docx,.pdf,.txt,.md,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+      </div>
       <textarea id="qnotes" placeholder="Вставь текст проповеди или урока — вопросы будут только по нему"></textarea>
       <p class="hint" id="qNotesHint"></p>
     </div>
@@ -416,26 +428,26 @@ const NOVELTY_HINT = {
 
 const EXAMPLE = {
   example:true,
-  brief:{age:"14–16 лет", size:"15–30 человек", time:"10–15 минут на игру", theme:"Доверие", room:"Зал со стульями", wish:"", counts:[1,1,1,1,1]},
+  brief:{age:"14–23 года", size:"15–20 человек", time:"10–20 минут", mode:"Под тему проповеди", theme:"Доверие", room:"Зал со стульями", wish:"", counts:[1,1,1,1,1]},
   slots:[0,1,2,3,4],
   games:[
-    {title:"Пересядь, если…", time:"3–5 минут | все вместе | сидя в кругу", props:"Стулья по кругу — на один меньше, чем людей",
+    {title:"Пересядь, если…", time:"3–5 минут | все вместе | сидя в кругу", props:"Стулья по кругу — на один меньше, чем людей", goal:"Не остаться без стула: кто остался — становится ведущим.", example:"Ведущий говорит: «Пересядь, если ты сегодня завтракал». Встают шесть человек и ищут свободные стулья, ведущий тоже садится. Без стула остаётся Даша — теперь она в центре и придумывает своё «пересядь, если…».",
      rules:["Все садятся в круг, ведущий стоит в центре без стула.","Ведущий говорит «Пересядь, если…» и называет что-то про себя: «…если ты сегодня не выспался», «…если у тебя есть младший брат».","Все, кому это подходит, встают и ищут свободный стул. Садиться на соседний нельзя.","Кто остался без стула — новый ведущий. Через пару кругов добавь вопрос поглубже: «…если тебя когда-то подводил друг»."],
      secret:"Каждый рассказывает о себе одним действием — встать или остаться. Выступать перед всеми не надо, а суета за стулья снимает неловкость смехом.",
      bridge:"Заметили, сколько человек встало на «тебя подводил друг»? Почти все. Сегодня поговорим, кому вообще можно доверять и почему Богу — можно."},
-    {title:"Переверни стакан", time:"8–10 минут | 2–4 команды по 5–8 человек | у столов", props:"Пластиковые стаканчики по одному на человека, 2 стола или лавки",
+    {title:"Переверни стакан", time:"8–10 минут | 2–4 команды по 5–8 человек | у столов", props:"Пластиковые стаканчики по одному на человека, 2 стола или лавки", goal:"Первой командой перевернуть все стаканы по очереди.", example:"Первый в колонне щёлкает по донышку снизу — стакан падает на бок. Пробует ещё раз — стакан встаёт. Теперь очередь следующего, а вся команда подсказывает.",
      rules:["Команды встают в колонну у своего стола. У каждого перед собой стакан дном вверх, донышко чуть выступает за край стола.","Первый щелчком пальцев снизу подбрасывает стакан, чтобы тот перевернулся и встал дном вниз.","Получилось — переворачивает следующий. Не получилось — пробует, пока не выйдет.","Выигрывает команда, у которой первой перевернулись все стаканы. 3 раунда, в последнем — только левой рукой."],
      secret:"С первого раза не выходит почти ни у кого, и это смешно, а не стыдно: команда болеет за своего, а не смеётся над ним.",
      bridge:"Пока кто-то в пятый раз пытался перевернуть стакан, команда ждала и подсказывала, никто его не выгнал. Вот так выглядят люди, которым можно доверять."},
-    {title:"Шпион", time:"10–15 минут | группы по 5–8 человек | сидя", props:"Листки бумаги и ручка: на всех одно место, на одном — «Шпион»",
+    {title:"Шпион", time:"10–15 минут | группы по 5–8 человек | сидя", props:"Листки бумаги и ручка: на всех одно место, на одном — «Шпион»", goal:"Остальным — вычислить шпиона, шпиону — не выдать себя или угадать место.", example:"Место — «школьная столовая». Артём спрашивает Лизу: «Что там чаще всего слышно?» — «Звон подносов». Шпион Максим на вопрос «Там холодно?» отвечает «Смотря когда» — и ловит подозрительные взгляды.",
      rules:["Раздай сложенные листки: у всех написано одно место (например, «школьная столовая»), у одного — «Шпион». Свой листок никто не показывает.","По кругу каждый задаёт кому-то вопрос про место: «Что ты там обычно делаешь?» Отвечать надо так, чтобы свои поняли, а шпион не догадался.","Шпион места не знает и выкручивается по чужим ответам.","В любой момент можно объявить голосование. Если шпиона вычислили, он ещё выигрывает, если угадает место."],
      secret:"Блефовать здесь безопасно: обманывать — это правило игры. Тихие ребята часто оказываются лучшими детективами.",
      bridge:"Как вы понимали, кто шпион? По мелочам: голос дрогнул, ответ слишком общий. Мы всё время проверяем, кому верить. Сегодня — о Том, Кто ни разу не обманул."},
-    {title:"Фото-охота", time:"5–8 минут | команды по 3–4 человека | по всему зданию", props:"Один смартфон на команду, список кадров на экране или листке",
+    {title:"Фото-охота", time:"5–8 минут | команды по 3–4 человека | по всему зданию", props:"Один смартфон на команду, список кадров на экране или листке", goal:"За 4 минуты снять как можно больше кадров из списка.", example:"Команда видит пункт «что-то старше вас всех», бежит к пианино в углу зала и снимает его. Следующий пункт — «никто не касается пола»: все встают на стулья и делают общее фото.",
      rules:["Покажи список из 8 кадров: «вся команда в кадре и никто не касается пола», «что-то старше вас всех», «самое смешное лицо лидера», «то, на что можно опереться».","У команд 4 минуты, снимать можно только внутри здания.","Каждый кадр — 1 очко, самый креативный — 2.","Покажите лучшие фото на проекторе или прямо с телефонов."],
      secret:"Телефон в руках — привычная зона комфорта. Смешно получается за кадром, а не на глазах у всех.",
      bridge:"Последний кадр был «то, на что можно опереться». Что вы сняли — стену, перила, друга? А на что ты опираешься, когда всё плохо?"},
-    {title:"Минное поле", time:"10–15 минут | пары, остальные — «шум» | свободная часть зала", props:"Стаканчики и листы бумаги — «мины», шарф или повязка на глаза",
+    {title:"Минное поле", time:"10–15 минут | пары, остальные — «шум» | свободная часть зала", props:"Стаканчики и листы бумаги — «мины», шарф или повязка на глаза", goal:"Пройти поле с завязанными глазами, не задев ни одной «мины», только по голосу напарника.", example:"Катя с завязанными глазами стоит на старте. Напарник: «Два маленьких шага вперёд. Стоп. Шаг вправо». Во втором раунде вокруг кричат «налево!», а Катя ищет среди шума голос своего напарника.",
      rules:["Разложи по полу «мины» из стаканчиков и бумаги.","Один из пары завязывает глаза, второй стоит за краем поля и ведёт его только голосом: «шаг влево», «стоп».","Задел мину — обратно на старт. Засекай время каждой пары.","Во втором раунде остальные специально выкрикивают неправильные подсказки. Ведомый должен слышать только своего."],
      secret:"Повязка на глазах выглядит смело, а не глупо, и всё внимание на паре, а не на одном человеке.",
      bridge:"Во втором раунде мешали не мины, а чужие голоса. Вокруг тебя тоже много голосов. Иисус сказал: «Овцы Мои слушаются голоса Моего» (Ин 10:27). Как научиться отличать Его голос?"}
@@ -527,26 +539,31 @@ function showNoveltyHint(){
   $("noveltyHint").textContent = NOVELTY_HINT[v] || "";
 }
 function fillForm(b){
-  ["age","size","time","novelty"].forEach(n=>{
+  b = {...b, mode: b.mode || (b.theme ? "Под тему проповеди" : DEFAULTS.mode)};
+  ["age","size","time","novelty","mode"].forEach(n=>{
     const all = [...document.getElementsByName(n)];
     const x = all.find(x=>x.value===b[n]) || all.find(x=>x.value===DEFAULTS[n]) || all[0];
     x.checked = true;
   });
-  showNoveltyHint();
+  showNoveltyHint(); syncMode();
   $("theme").value = b.theme||""; $("room").value = b.room||""; $("wish").value = b.wish||"";
   counts = (Array.isArray(b.counts) && b.counts.length===5) ? b.counts.map(x=>Math.max(0,Math.min(MAX_TOTAL,Number(x)||0))) : [1,1,1,1,1];
   renderKinds();
 }
+function syncMode(){
+  const m = (document.querySelector('input[name="mode"]:checked')||{}).value || DEFAULTS.mode;
+  $("themeField").hidden = m !== "Под тему проповеди";
+}
 function readForm(){
   const g = n => (document.querySelector('input[name="'+n+'"]:checked')||{}).value || DEFAULTS[n] || OPTS[n][0];
-  return {age:g("age"), size:g("size"), time:g("time"), novelty:g("novelty"), counts:counts.slice(), theme:$("theme").value.trim(), room:$("room").value.trim(), wish:$("wish").value.trim()};
+  return {age:g("age"), size:g("size"), time:g("time"), novelty:g("novelty"), mode:g("mode"), counts:counts.slice(), theme:$("theme").value.trim(), room:$("room").value.trim(), wish:$("wish").value.trim()};
 }
 
 // ---------- карточки ----------
 function renderHead(){
   const b = state.brief, n = state.games.length;
-  $("resTitle").textContent = n + " " + plural(n,"игра","игры","игр") + ": " + b.age + " | " + b.size + " | " + b.time.replace(" на игру","");
-  const meta = $("resMeta"); meta.textContent = "Тема: " + (b.theme || "сплочение и драйв");
+  $("resTitle").textContent = n + " " + plural(n,"игра","игры","игр") + ": " + b.age + " | " + b.size + " | " + b.time;
+  const meta = $("resMeta"); meta.textContent = C.themed(b) ? "Под тему: «" + b.theme + "»" : "Просто игры, без темы";
   if(b.room) meta.textContent += " · " + b.room;
   if(state.example){ meta.append(el("span","badge","Пример")); }
 }
@@ -565,10 +582,13 @@ function renderCard(i, fresh){
     const dl = el("dl","meta");
     dl.append(el("dt",null,"Время и формат"), el("dd",null,g.time), el("dt",null,"Реквизит"), el("dd",null,g.props));
     card.append(dl);
-    card.append(el("h4",null,"Правила"));
+    if(g.goal){ card.append(el("h4",null,"Цель"), el("p","goal",g.goal)); }
+    card.append(el("h4",null,"Правила по шагам"));
     const ol = el("ol"); g.rules.forEach(r=>ol.append(el("li",null,r))); card.append(ol);
-    card.append(el("h4",null,"Почему зайдёт"), el("p",null,g.secret));
-    if(g.bridge){ card.append(el("h4",null,"Мостик к теме"), el("blockquote","bridge","«"+g.bridge.replace(/^«|»$/g,"")+"»")); }
+    if(g.example){ card.append(el("h4",null,"Как это выглядит"), el("p",null,g.example)); }
+    if(g.secret){ card.append(el("h4",null,"Почему зайдёт"), el("p",null,g.secret)); }
+    if(g.bridge){ card.append(el("h4",null, C.themed(state.brief) ? "Итог: связь с темой" : "Мостик к теме"), el("blockquote","bridge","«"+g.bridge.replace(/^«|»$/g,"")+"»")); }
+    if(g.question){ card.append(el("h4",null,"Вопрос ребятам"), el("p",null,g.question)); }
     if(g.detail){ const d = renderDetail(g.detail); if(g.detailHidden) d.hidden = true; card.append(d); }
   }
   if(g !== "loading"){
@@ -656,13 +676,14 @@ async function post(payload, signal){
   if(!r.ok || !j || j.error) throw {code:(j && j.error) || "upstream", message: j && j.message};
   return j;
 }
-const plainGame = g => ({title:g.title, time:g.time, props:g.props, rules:g.rules, secret:g.secret, bridge:g.bridge});
+const plainGame = g => ({title:g.title, time:g.time, props:g.props, goal:g.goal, rules:g.rules, example:g.example, secret:g.secret, bridge:g.bridge, question:g.question});
 
 async function generate(){
   if(!available || busy) return;
   const b = readForm();
   const slots = slotsFrom(b.counts), n = slots.length;
   if(!n){ setStatus("Добавь хотя бы одну игру.", true); return; }
+  if(b.mode === "Под тему проповеди" && !b.theme){ setStatus("Напиши тему проповеди или выбери «Просто игры».", true); $("theme").focus(); return; }
   const prev = state;
   state = {example:false, brief:b, slots, games:slots.map(()=>"loading")};
   renderAll();
@@ -753,10 +774,12 @@ function asText(){
   state.games.forEach((g,i)=>{
     if(!g || g==="loading") return;
     out += "\n" + (i+1) + ". " + g.title + " (" + KINDS[state.slots[i]].label + ")\n";
-    out += "Время и формат: " + g.time + "\nРеквизит: " + g.props + "\nПравила:\n";
+    out += "Время и формат: " + g.time + "\nРеквизит: " + g.props + "\n" + (g.goal ? "Цель: " + g.goal + "\n" : "") + "Правила:\n";
     g.rules.forEach((r,j)=> out += "  " + (j+1) + ") " + r + "\n");
-    out += "Почему зайдёт: " + g.secret + "\n";
-    if(g.bridge) out += "Мостик: «" + g.bridge + "»\n";
+    if(g.example) out += "Как это выглядит: " + g.example + "\n";
+    if(g.secret) out += "Почему зайдёт: " + g.secret + "\n";
+    if(g.bridge) out += (C.themed(b) ? "Итог по теме: «" : "Мостик: «") + g.bridge + "»\n";
+    if(g.question) out += "Вопрос ребятам: " + g.question + "\n";
     const d = g.detail;
     if(d && d!=="loading"){
       if(d.checklist.length) out += "Чек-лист: " + d.checklist.join("; ") + "\n";
@@ -776,7 +799,7 @@ const LETTERS = ["A","B","C","D"];
 const lvClass = n => n<=2 ? "lv1" : n<=7 ? "lv2" : n<=9 ? "lv3" : "lv4";
 const QEXAMPLE = {
   example:true, showAnswers:true,
-  q:{source:"Книга или история", topic:"Иона", notes:"", age:"11–13 лет", wish:""},
+  q:{source:"Книга или история", topic:"Иона", notes:"", age:"9–14 лет", wish:""},
   items:[
     {q:"Кого проглотила огромная рыба?", options:["Иова","Иону","Илию","Исаию"], correct:1, comment:"Четыре пророка на «И» — легко перепутать. В Синодальном переводе рыба, кстати, названа китом.", ref:"Ион 1:17"},
     {q:"Сколько Иона пробыл во чреве рыбы?", options:["Сорок дней и сорок ночей","Семь дней","Три дня и три ночи","Шесть дней"], correct:2, comment:"Иисус Сам вспомнит это: «как Иона был во чреве кита три дня и три ночи» — и скажет так о Своём погребении и воскресении.", ref:"Ион 1:17; Мф 12:40"},
@@ -811,7 +834,62 @@ function syncSource(){
   $("qtopic").placeholder = src === "Тема" ? "Например: прощение, дружба, страх" : "Например: Иона, Руфь, Исход из Египта";
   updNotesHint();
 }
-function updNotesHint(){ const n = $("qnotes").value.length; $("qNotesHint").textContent = n ? n + " из 8000 знаков" : "Вопросы будут строго по тексту конспекта."; }
+function updNotesHint(){ const n = $("qnotes").value.length; $("qNotesHint").textContent = n ? n + " из " + C.NOTES_MAX + " знаков" + (n > C.NOTES_MAX ? " — лишнее обрежется" : "") : "Вопросы будут строго по тексту проповеди."; }
+
+// ---------- чтение файла проповеди ----------
+const LIBS = {
+  mammoth: "https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js",
+  pdf: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
+  pdfWorker: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"
+};
+const libLoads = {};
+function loadScript(src){
+  if(libLoads[src]) return libLoads[src];
+  return libLoads[src] = new Promise((res, rej)=>{
+    const sc = document.createElement("script"); sc.src = src; sc.async = true;
+    sc.onload = res; sc.onerror = ()=>{ delete libLoads[src]; rej(new Error("lib")); };
+    document.head.appendChild(sc);
+  });
+}
+async function fileToText(file){
+  const name = (file.name || "").toLowerCase();
+  if(name.endsWith(".doc")) throw new Error("Старый формат .doc не читается — сохрани файл как .docx или PDF.");
+  if(name.endsWith(".txt") || name.endsWith(".md") || (file.type || "").startsWith("text/")) return await file.text();
+  if(name.endsWith(".docx")){
+    await loadScript(LIBS.mammoth);
+    const r = await window.mammoth.extractRawText({arrayBuffer: await file.arrayBuffer()});
+    return r.value || "";
+  }
+  if(name.endsWith(".pdf") || file.type === "application/pdf"){
+    await loadScript(LIBS.pdfWorker);   // даёт pdf.js работать без отдельного воркера
+    await loadScript(LIBS.pdf);
+    const lib = window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc = LIBS.pdfWorker;
+    const doc = await lib.getDocument({data: new Uint8Array(await file.arrayBuffer()), isEvalSupported:false}).promise;
+    const pages = [];
+    for(let i=1; i<=Math.min(doc.numPages, 80); i++){
+      const tc = await (await doc.getPage(i)).getTextContent();
+      pages.push(tc.items.map(it=> it.str + (it.hasEOL ? "\n" : " ")).join(""));
+    }
+    const t = pages.join("\n\n");
+    if(!t.replace(/\s/g,"")) throw new Error("В этом PDF нет текста — похоже, это скан. Вставь текст вручную.");
+    return t;
+  }
+  throw new Error("Этот тип файла не читается. Подойдут .docx, .pdf и .txt.");
+}
+async function loadSermonFile(file){
+  if(!file) return;
+  setQStatus("Читаю файл «" + file.name + "»…");
+  $("qFileName").textContent = file.name;
+  try{
+    let t = (await fileToText(file)).replace(/\r/g,"").replace(/[ \t]+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+    const full = t.length;
+    if(full > C.NOTES_MAX) t = t.slice(0, C.NOTES_MAX);
+    $("qnotes").value = t; updNotesHint();
+    setQStatus(full > C.NOTES_MAX ? "Файл большой: взял первые " + C.NOTES_MAX + " знаков из " + full + ". Для викторины этого хватит." : "Файл загружен — " + full + " знаков. Можно собирать викторину.");
+  }catch(e){
+    setQStatus(e && e.message && e.message !== "lib" ? e.message : "Не получилось прочитать файл. Попробуй другой формат или вставь текст вручную.", true);
+  }
+}
 
 function renderQuizHead(){
   const q = quiz.q;
@@ -1048,6 +1126,12 @@ fillQuiz(quiz.q); renderQuiz(); route();
 window.addEventListener("hashchange", route);
 document.querySelector('.seg[data-name="qsource"]').addEventListener("change", syncSource);
 $("qnotes").addEventListener("input", updNotesHint);
+$("qFileBtn").addEventListener("click", ()=> $("qfile").click());
+$("qfile").addEventListener("change", e=>{ const f = e.target.files && e.target.files[0]; loadSermonFile(f); e.target.value = ""; });
+["dragenter","dragover"].forEach(t=> $("qnotes").addEventListener(t, e=>{ if(e.dataTransfer && [...e.dataTransfer.types].includes("Files")){ e.preventDefault(); $("qnotes").classList.add("drop"); } }));
+["dragleave","drop"].forEach(t=> $("qnotes").addEventListener(t, ()=> $("qnotes").classList.remove("drop")));
+$("qnotes").addEventListener("drop", e=>{ const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if(f){ e.preventDefault(); loadSermonFile(f); } });
+document.querySelector('.seg[data-name="mode"]').addEventListener("change", syncMode);
 $("quizForm").addEventListener("submit", e=>{ e.preventDefault(); genQuiz(); });
 $("qstop").addEventListener("click", ()=>{ if(ctl) ctl.abort(); });
 $("qcards").addEventListener("click", e=>{ const b = e.target.closest("[data-qact]"); if(b) fixQuestion(Number(b.dataset.i)); });
