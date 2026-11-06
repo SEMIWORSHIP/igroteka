@@ -65,7 +65,8 @@ function skill(b){
 - Минимальный подручный реквизит: пластиковые стаканчики, скотч, бумага А4, маркеры, стулья, смартфоны ребят или вообще ничего.
 - Учитывай возраст, число людей, время и помещение: правила должны реально работать в таком зале с таким количеством ребят.
 - Если упоминаешь Библию — только то, что действительно есть в каноническом тексте. Не выдумывай цитат; ссылку на стих давай, только если уверен.
-- Пиши по-русски, живым простым языком, без канцелярита.`;
+- Пиши по-русски, живым простым языком, без канцелярита.
+- Внутри текста используй только кавычки-ёлочки «», никогда не ставь прямые кавычки " внутри текста — они ломают JSON.`;
 }
 function briefText(b){
   return `Вводные:
@@ -143,7 +144,8 @@ function quizSkill(){
 - После каждого вопроса — комментарий ведущего на 1–2 предложения: интересная деталь из текста, связь с другим местом Писания или короткая мысль, зачем это нам. Можно с доброй улыбкой, но без сленга. В комментарии не называй букву ответа.
 - Возраст: 11–13 — простые слова, вопросы о героях, событиях и местах; 14–16 — больше деталей, порядок событий и связи между историями; 17+ — контекст, исторические детали и смысл.
 - Библейские факты — только из канонического текста Библии (66 книг), без апокрифов и преданий. Сверяйся с Синодальным переводом и не выдумывай деталей, которых нет в тексте. В поле ref укажи, где это написано (например «Ион 1:17»); если вопрос не про конкретное место — оставь ref пустым.
-- Пиши по-русски.`;
+- Пиши по-русски.
+- Внутри текста вопросов, вариантов и комментариев используй только кавычки-ёлочки «», никогда не ставь прямые кавычки " внутри текста — они ломают JSON.`;
 }
 function quizBasis(q){
   if(q.source === "Конспект") return `Основа — конспект проповеди лидера ниже. Вопросы составляй ИСКЛЮЧИТЕЛЬНО по фактам, примерам, цитатам и иллюстрациям из конспекта: это проверка, слушали ли ребята проповедника. Не добавляй того, чего в конспекте нет.
@@ -177,6 +179,18 @@ ${wish ? "Пожелание лидера к этому вопросу: " + wish
 
 Ответь только одним JSON-объектом вида
 ${QUESTION_SHAPE.replace('"n":1','"n":'+n)}`;
+}
+function promptQuizFill(q, missing, existing){
+  return quizSkill() + "\n\n" + quizBasis(q) + "\n\n" + quizBrief(q) + `
+
+Викторина уже частично готова. Не хватает вопросов с номерами: ${missing.join(", ")}.
+` + missing.map(n=>`${n}. ${quizLevel(n)} — ${QUIZ_LEVEL_NEED[quizLevel(n)]}.`).join("\n") + (existing && existing.length ? `
+
+Уже есть такие вопросы — не повторяй их: ` + existing.join(" | ") : "") + `
+
+Ответь строками JSON, по одному объекту на недостающий вопрос, вида
+${QUESTION_SHAPE}
+В поле n поставь номер недостающего вопроса. Никакого markdown и пояснений.`;
 }
 function normQuestion(o, n){
   if(!o || typeof o!=="object") return null;
@@ -255,16 +269,35 @@ function tryJson(t){
   try{ return JSON.parse(t.replace(/,\s*([}\]])/g, "$1").replace(/[“”]/g, '"')); }catch(e){}
   return undefined;
 }
-/** Все JSON-объекты верхнего уровня в тексте — в одну строку, «красиво» с переносами, внутри массива или вперемешку с текстом. */
+/** Все JSON-объекты верхнего уровня в тексте — в одну строку, «красиво» с переносами, внутри массива или вперемешку с текстом.
+    Заодно чинит частые поломки моделей: прямые кавычки внутри текста и переносы строк внутри строк. */
 function extractObjects(text){
   const t = stripFences(text), out = [];
-  let depth = 0, start = -1, inStr = false, esc = false;
+  let depth = 0, inStr = false, esc = false, buf = "";
+  const nextSig = i => { for(let k=i+1;k<t.length;k++){ const c = t[k]; if(c!==" " && c!=="\t" && c!=="\r" && c!=="\n") return c; } return ""; };
   for(let i=0;i<t.length;i++){
     const ch = t[i];
-    if(inStr){ if(esc) esc = false; else if(ch === "\\") esc = true; else if(ch === '"') inStr = false; continue; }
-    if(ch === '"'){ if(depth > 0) inStr = true; continue; }
-    if(ch === "{"){ if(depth === 0) start = i; depth++; }
-    else if(ch === "}" && depth > 0){ depth--; if(depth === 0 && start >= 0){ const o = tryJson(t.slice(start, i+1)); if(o && typeof o === "object") out.push(o); start = -1; } }
+    if(depth === 0){
+      if(ch === "{"){ depth = 1; buf = "{"; }
+      continue;
+    }
+    if(inStr){
+      if(esc){ esc = false; buf += ch; continue; }
+      if(ch === "\\"){ esc = true; buf += ch; continue; }
+      if(ch === "\n" || ch === "\r"){ if(ch === "\n") buf += "\\n"; continue; }   // перенос внутри строки → \n
+      if(ch === '"'){
+        // кавычка закрывает строку, только если дальше идёт разделитель JSON; иначе это кавычка внутри текста
+        const n = nextSig(i);
+        if(n === "," || n === "}" || n === "]" || n === ":" || n === ""){ inStr = false; buf += ch; }
+        else buf += '\\"';
+        continue;
+      }
+      buf += ch; continue;
+    }
+    if(ch === '"'){ inStr = true; buf += ch; continue; }
+    buf += ch;
+    if(ch === "{") depth++;
+    else if(ch === "}"){ depth--; if(depth === 0){ const o = tryJson(buf); if(o && typeof o === "object") out.push(o); buf = ""; } }
   }
   return out;
 }
@@ -318,7 +351,7 @@ function cleanGame(g){
 
 const api = {OPTS, DEFAULTS, MAX_TOTAL, KINDS, plural, slotsFrom, promptAll, promptOne, promptDetail,
   normGame, normDetail, parseLine, parseJsonLoose, parseGames, cleanBrief, cleanTitles, cleanGame, cleanStr,
-  QUIZ_SOURCES, QUIZ_COUNT, quizLevel, promptQuiz, promptQuizOne, normQuestion, shuffleQuestion, parseQuestions, cleanQuiz};
+  QUIZ_SOURCES, QUIZ_COUNT, quizLevel, promptQuiz, promptQuizOne, promptQuizFill, normQuestion, shuffleQuestion, parseQuestions, cleanQuiz};
 if (typeof module === "object" && module.exports) module.exports = api;
 else root.IgrotekaCore = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);
