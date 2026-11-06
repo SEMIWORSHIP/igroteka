@@ -175,19 +175,25 @@ ${QUESTION_SHAPE.replace('"n":1','"n":'+n)}`;
 function normQuestion(o, n){
   if(!o || typeof o!=="object") return null;
   const s = v => (v==null ? "" : String(v)).trim();
-  const options = Array.isArray(o.options) ? o.options.map(x=>s(x).replace(/^[A-DА-Г][).:]\s*/i,"")).filter(Boolean) : [];
+  // варианты: массив строк, массив объектов или объект {"A": "...", "B": "..."}
+  let raw = o.options || o.answers || o.variants || o["варианты"];
+  if(raw && !Array.isArray(raw) && typeof raw === "object") raw = Object.values(raw);
+  const options = (Array.isArray(raw) ? raw : []).map(x=> typeof x === "object" && x ? s(x.text || x.option || x.answer || x.value || Object.values(x)[0]) : s(x))
+    .map(x=>x.replace(/^[A-DА-Г][).:]\s*/i,"")).filter(Boolean);
   if(options.length !== 4) return null;
-  let c = o.correct;
+  let c = o.correct != null ? o.correct : o.answer != null ? o.answer : o.correct_answer != null ? o.correct_answer : o.right;
   if(typeof c === "string"){
-    const t = c.trim().toUpperCase();
-    const li = ["A","B","C","D"].indexOf(t[0]); const ci = ["А","Б","В","Г"].indexOf(t[0]);
-    c = li >= 0 ? li : ci >= 0 ? ci : Number(t);
+    const t = c.trim(), T = t.toUpperCase();
+    const byText = options.findIndex(x=>x.toLowerCase() === t.replace(/^[A-DА-Г][).:]\s*/i,"").toLowerCase());
+    const li = ["A","B","C","D"].indexOf(T[0]), ci = ["А","Б","В","Г"].indexOf(T[0]);
+    c = byText >= 0 ? byText : (t.length <= 3 || /^[A-DА-Г][).:\s]/i.test(t)) && (li >= 0 || ci >= 0) ? (li >= 0 ? li : ci) : Number(t);
   }
   c = Math.floor(Number(c));
+  if(c === 4) c = 3;                       // нумерация с единицы
   if(!(c>=0 && c<4)) return null;
-  const q = s(o.q || o.question);
+  const q = s(o.q || o.question || o.text || o["вопрос"]);
   if(!q) return null;
-  return {n, level:quizLevel(n), q, options, correct:c, comment:s(o.comment), ref:s(o.ref)};
+  return {n, level:quizLevel(n), q, options, correct:c, comment:s(o.comment || o.host || o["комментарий"]), ref:s(o.ref || o.reference || o.verse)};
 }
 /** Перемешивает варианты, чтобы верный ответ не стоял всегда под одной буквой. */
 function shuffleQuestion(x){
@@ -200,18 +206,12 @@ function parseQuestions(text, count){
   const out = new Array(count).fill(null);
   const place = o => {
     if(!o || typeof o!=="object") return;
-    let idx = Number(o.n) - 1;
+    let idx = Number(o.n || o.number || o.num) - 1;
     if(!(idx >= 0 && idx < count) || out[idx]) idx = out.findIndex(x=>!x);
     if(idx < 0) return;
     const qn = normQuestion(o, idx+1); if(qn) out[idx] = qn;
   };
-  const t = stripFences(text);
-  t.split("\n").forEach(l=>{ const o = parseLine(l); if(o) place(o); });
-  if(!out.some(Boolean)){
-    const all = parseJsonLoose(t);
-    if(Array.isArray(all)) all.forEach(place);
-    else if(all && Array.isArray(all.questions)) all.questions.forEach(place);
-  }
+  jsonObjects(text, ["questions","items","quiz","вопросы"]).forEach(place);
   return out;
 }
 function cleanQuiz(q){
@@ -243,15 +243,44 @@ function parseLine(line){
   try{ return JSON.parse(t); }catch(e){ return null; }
 }
 function stripFences(text){ return String(text||"").replace(/```(?:json)?/gi, "").trim(); }
+function tryJson(t){
+  try{ return JSON.parse(t); }catch(e){}
+  // частые огрехи моделей: висячие запятые и «умные» кавычки вокруг ключей
+  try{ return JSON.parse(t.replace(/,\s*([}\]])/g, "$1").replace(/[“”]/g, '"')); }catch(e){}
+  return undefined;
+}
+/** Все JSON-объекты верхнего уровня в тексте — в одну строку, «красиво» с переносами, внутри массива или вперемешку с текстом. */
+function extractObjects(text){
+  const t = stripFences(text), out = [];
+  let depth = 0, start = -1, inStr = false, esc = false;
+  for(let i=0;i<t.length;i++){
+    const ch = t[i];
+    if(inStr){ if(esc) esc = false; else if(ch === "\\") esc = true; else if(ch === '"') inStr = false; continue; }
+    if(ch === '"'){ if(depth > 0) inStr = true; continue; }
+    if(ch === "{"){ if(depth === 0) start = i; depth++; }
+    else if(ch === "}" && depth > 0){ depth--; if(depth === 0 && start >= 0){ const o = tryJson(t.slice(start, i+1)); if(o && typeof o === "object") out.push(o); start = -1; } }
+  }
+  return out;
+}
+/** Объекты-элементы: раскрывает обёртки вида {"questions":[...]} */
+function jsonObjects(text, wrapKeys){
+  const res = [];
+  extractObjects(text).forEach(o=>{
+    const k = wrapKeys.find(k=>Array.isArray(o[k]));
+    if(k) o[k].forEach(x=>{ if(x && typeof x === "object") res.push(x); }); else res.push(o);
+  });
+  return res;
+}
 /** Один JSON-объект или массив из ответа, даже если вокруг пара слов или ```json. */
 function parseJsonLoose(text){
   const t = stripFences(text);
-  try{ return JSON.parse(t); }catch(e){}
-  const a = t.search(/[\[{]/), z = Math.max(t.lastIndexOf("}"), t.lastIndexOf("]"));
-  if(a >= 0 && z > a){ try{ return JSON.parse(t.slice(a, z+1)); }catch(e){} }
+  const whole = tryJson(t); if(whole !== undefined) return whole;
+  const objs = extractObjects(t);
+  if(objs.length === 1) return objs[0];
+  if(objs.length > 1) return objs;
   return null;
 }
-/** Разбирает n игр: строки JSON, либо JSON-массив. Возвращает массив длины n (null — не пришло). */
+/** Разбирает n игр в любом оформлении. Возвращает массив длины n (null — не пришло). */
 function parseGames(text, n){
   const out = new Array(n).fill(null);
   const place = o => {
@@ -260,14 +289,7 @@ function parseGames(text, n){
     if(!(idx >= 0 && idx < n) || out[idx]) idx = out.findIndex(x=>!x);
     if(idx >= 0) out[idx] = g;
   };
-  const t = stripFences(text);
-  t.split("\n").forEach(l=>{ const o = parseLine(l); if(o) place(o); });
-  if(!out.some(Boolean)){
-    const all = parseJsonLoose(t);
-    if(Array.isArray(all)) all.forEach(place);
-    else if(all && Array.isArray(all.games)) all.games.forEach(place);
-    else if(all) place(all);
-  }
+  jsonObjects(text, ["games","items","игры"]).forEach(place);
   return out;
 }
 
